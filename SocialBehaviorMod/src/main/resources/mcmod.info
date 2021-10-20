@@ -1,0 +1,18 @@
+[
+  {
+    "modid": "socialbehaviormod",
+    "name": "Social Behavior Mod",
+    "description": "",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": [
+      "SnaKi"
+    ],
+    "credits": "SnaKi",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
