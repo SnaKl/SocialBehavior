@@ -13,8 +13,8 @@ buildscript {
 
 apply plugin: "net.minecraftforge.gradle.forge"
 
-group = 'com.socialbehavior'
-version = '1.0-SNAPSHOT'
+group = 'com'
+version = '1.0.0'
 archivesBaseName = 'socialbehaviormod'
 
 minecraft {

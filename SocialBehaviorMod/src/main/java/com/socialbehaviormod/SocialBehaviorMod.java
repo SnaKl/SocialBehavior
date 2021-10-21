@@ -1,5 +1,6 @@
-package com.socialbehavior.socialbehaviormod;
+package com.socialbehaviormod;
 
+import com.socialbehaviormod.util.Reference;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
@@ -10,22 +11,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
-@Mod(
-        modid = Socialbehaviormod.MOD_ID,
-        name = Socialbehaviormod.MOD_NAME,
-        version = Socialbehaviormod.VERSION
-)
-public class Socialbehaviormod {
-
-    public static final String MOD_ID = "socialbehaviormod";
-    public static final String MOD_NAME = "socialbehaviormod";
-    public static final String VERSION = "1.0-SNAPSHOT";
-
+@Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION)
+public class SocialBehaviorMod {
     /**
      * This is the instance of your mod as created by Forge. It will never be null.
      */
-    @Mod.Instance(MOD_ID)
-    public static Socialbehaviormod INSTANCE;
+    @Mod.Instance(Reference.MOD_ID)
+    public static SocialBehaviorMod INSTANCE;
 
     /**
      * This is the first initialization event. Register tile entities here.
@@ -56,7 +48,7 @@ public class Socialbehaviormod {
      * Forge will automatically look up and bind blocks to the fields in this class
      * based on their registry name.
      */
-    @GameRegistry.ObjectHolder(MOD_ID)
+    @GameRegistry.ObjectHolder(Reference.MOD_ID)
     public static class Blocks {
       /*
           public static final MySpecialBlock mySpecialBlock = null; // placeholder for special block below
@@ -67,7 +59,7 @@ public class Socialbehaviormod {
      * Forge will automatically look up and bind items to the fields in this class
      * based on their registry name.
      */
-    @GameRegistry.ObjectHolder(MOD_ID)
+    @GameRegistry.ObjectHolder(Reference.MOD_ID)
     public static class Items {
       /*
           public static final ItemBlock mySpecialBlock = null; // itemblock for the block above
