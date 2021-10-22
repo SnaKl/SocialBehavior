@@ -1,9 +1,11 @@
 package com.socialbehaviormod;
 
-import com.socialbehaviormod.util.Reference;
+import com.socialbehaviormod.proxy.CommonProxy;
+import com.socialbehaviormod.utils.Reference;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -11,13 +13,18 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
+import java.sql.Ref;
+
 @Mod(modid = Reference.MOD_ID, name = Reference.MOD_NAME, version = Reference.VERSION)
 public class SocialBehaviorMod {
-    /**
-     * This is the instance of your mod as created by Forge. It will never be null.
-     */
+
+    /** This is the instance of your mod as created by Forge. It will never be null. */
     @Mod.Instance(Reference.MOD_ID)
     public static SocialBehaviorMod INSTANCE;
+
+    @SidedProxy(clientSide = Reference.CLIENT_PROXY, serverSide = Reference.SERVER_PROXY)
+    public static CommonProxy PROXY;
+
 
     /**
      * This is the first initialization event. Register tile entities here.
@@ -72,26 +79,21 @@ public class SocialBehaviorMod {
      */
     @Mod.EventBusSubscriber
     public static class ObjectRegistryHandler {
-        /**
-         * Listen for the register event for creating custom items
-         */
-        @SubscribeEvent
-        public static void addItems(RegistryEvent.Register<Item> event) {
+       /** Listen for the register event for creating custom items */
+       @SubscribeEvent
+       public static void addItems(RegistryEvent.Register<Item> event) {
            /*
              event.getRegistry().register(new ItemBlock(Blocks.myBlock).setRegistryName(MOD_ID, "myBlock"));
              event.getRegistry().register(new MySpecialItem().setRegistryName(MOD_ID, "mySpecialItem"));
             */
-        }
-
-        /**
-         * Listen for the register event for creating custom blocks
-         */
-        @SubscribeEvent
-        public static void addBlocks(RegistryEvent.Register<Block> event) {
+       }
+       /** Listen for the register event for creating custom blocks */
+       @SubscribeEvent
+       public static void addBlocks(RegistryEvent.Register<Block> event) {
            /*
              event.getRegistry().register(new MySpecialBlock().setRegistryName(MOD_ID, "mySpecialBlock"));
             */
-        }
+       }
     }
     /* EXAMPLE ITEM AND BLOCK - you probably want these in separate files
     public static class MySpecialItem extends Item {

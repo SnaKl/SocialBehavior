@@ -1,7 +1,7 @@
 [
   {
     "modid": "socialbehaviormod",
-    "name": "SocialBehaviorMod",
+    "name": "Social Behavior",
     "description": "",
     "version": "${version}",
     "mcversion": "${mcversion}",

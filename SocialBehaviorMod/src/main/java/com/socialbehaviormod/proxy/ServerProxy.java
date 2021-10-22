@@ -1,6 +1,6 @@
 package com.socialbehaviormod.proxy;
 
-public class ClientProxy extends CommonProxy{
+public class ServerProxy extends CommonProxy{
     @Override
     public void preInit() {
         super.preInit();
