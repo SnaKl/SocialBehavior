@@ -1,6 +1,7 @@
-package com.socialbehavior.socialbehaviormod.setup;
+package com.socialbehavior.socialbehaviormod.init;
 
 import com.socialbehavior.socialbehaviormod.SocialBehaviorMod;
+import com.socialbehavior.socialbehaviormod.utils.ModRegistration;
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -15,7 +16,7 @@ public class ModBlocks {
                     .strength(5f)
                     .requiresCorrectToolForDrops()));
 
-    static void register() {
+    public static void register() {
         SocialBehaviorMod.LOGGER.info("REGISTER BLOCK");
     }
 
