@@ -1,8 +1,8 @@
-package com.socialbehavior.socialbehaviormod.client.model;
+package com.socialbehavior.socialbehaviormod.client.entity.model;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
-import com.socialbehavior.socialbehaviormod.entities.HogEntity;
+import com.socialbehavior.socialbehaviormod.common.entities.HogEntity;
 import net.minecraft.client.renderer.entity.model.EntityModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.util.math.MathHelper;

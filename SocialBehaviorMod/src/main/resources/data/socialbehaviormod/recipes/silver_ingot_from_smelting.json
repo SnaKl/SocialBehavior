@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smelting",
+  "ingredient": {
+    "item": "socialbehaviormod:silver_ore"
+  },
+  "result": "socialbehaviormod:silver_ingot",
+  "experience": 1.0,
+  "cookingtime" : 200
+}

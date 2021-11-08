@@ -1,4 +1,4 @@
-package com.socialbehavior.socialbehaviormod.utils;
+package com.socialbehavior.socialbehaviormod.core.util;
 
 public class Reference {
     public static final String MOD_ID = "socialbehaviormod";
