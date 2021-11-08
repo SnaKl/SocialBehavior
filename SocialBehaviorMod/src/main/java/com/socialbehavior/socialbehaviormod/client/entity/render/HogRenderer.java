@@ -1,8 +1,8 @@
-package com.socialbehavior.socialbehaviormod.client.render;
+package com.socialbehavior.socialbehaviormod.client.entity.render;
 
-import com.socialbehavior.socialbehaviormod.client.model.HogModel;
-import com.socialbehavior.socialbehaviormod.entities.HogEntity;
-import com.socialbehavior.socialbehaviormod.utils.Reference;
+import com.socialbehavior.socialbehaviormod.client.entity.model.HogModel;
+import com.socialbehavior.socialbehaviormod.common.entities.HogEntity;
+import com.socialbehavior.socialbehaviormod.core.util.Reference;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.util.ResourceLocation;

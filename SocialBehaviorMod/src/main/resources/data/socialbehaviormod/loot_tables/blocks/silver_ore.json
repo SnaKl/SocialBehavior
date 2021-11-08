@@ -9,7 +9,7 @@
           "children": [
             {
               "type": "minecraft:item",
-              "name": "socialbehaviormod:silver_ore_block",
+              "name": "socialbehaviormod:silver_ore",
               "conditions": [
                 {
                   "condition": "minecraft:match_tool",
@@ -28,7 +28,7 @@
             },
             {
               "type": "minecraft:item",
-              "name": "socialbehaviormod:silver_ingot_item",
+              "name": "socialbehaviormod:silver_ingot",
               "functions": [
                 {
                   "function": "minecraft:apply_bonus",

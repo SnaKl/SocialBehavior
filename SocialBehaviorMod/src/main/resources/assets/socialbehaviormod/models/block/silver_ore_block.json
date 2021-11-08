@@ -1,6 +1,0 @@
-{
-  "parent": "block/cube_all",
-  "textures": {
-    "all": "socialbehaviormod:blocks/silver_ore_block"
-  }
-}

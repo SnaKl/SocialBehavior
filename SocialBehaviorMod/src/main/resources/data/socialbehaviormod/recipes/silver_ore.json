@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "###",
+    "###",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "socialbehaviormod:silver_ingot"
+    }
+  },
+  "result": {
+    "item": "socialbehaviormod:silver_ore"
+  }
+}
