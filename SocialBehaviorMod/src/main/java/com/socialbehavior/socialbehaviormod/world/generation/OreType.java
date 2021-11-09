@@ -1,11 +1,11 @@
-package com.socialbehavior.socialbehaviormod.world.gen;
+package com.socialbehavior.socialbehaviormod.world.generation;
 
-import com.socialbehavior.socialbehaviormod.core.init.BlockInit;
+import com.socialbehavior.socialbehaviormod.block.ModBlocks;
 import net.minecraft.block.Block;
 import net.minecraftforge.common.util.Lazy;
 
 public enum OreType {
-    SILVER(Lazy.of(BlockInit.SILVER_ORE), 8, 25, 50);
+    SILVER(Lazy.of(ModBlocks.SILVER_ORE), 8, 25, 50);
 
     private final Lazy<Block> block;
     private final int maxVeinSize;

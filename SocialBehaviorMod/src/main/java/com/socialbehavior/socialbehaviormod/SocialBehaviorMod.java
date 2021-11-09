@@ -1,10 +1,9 @@
 package com.socialbehavior.socialbehaviormod;
 
-import com.socialbehavior.socialbehaviormod.common.entities.HogEntity;
-import com.socialbehavior.socialbehaviormod.core.init.BlockInit;
-import com.socialbehavior.socialbehaviormod.core.init.EntityTypesInit;
-import com.socialbehavior.socialbehaviormod.core.init.ItemInit;
-import com.socialbehavior.socialbehaviormod.core.util.Reference;
+import com.socialbehavior.socialbehaviormod.block.ModBlocks;
+import com.socialbehavior.socialbehaviormod.entity.ModEntityTypes;
+import com.socialbehavior.socialbehaviormod.entity.custom.HogEntity;
+import com.socialbehavior.socialbehaviormod.item.ModItems;
 import net.minecraft.block.Block;
 import net.minecraft.entity.ai.attributes.GlobalEntityTypeAttributes;
 import net.minecraftforge.common.MinecraftForge;
@@ -26,17 +25,19 @@ import org.apache.logging.log4j.Logger;
 import java.util.stream.Collectors;
 
 // The value here should match an entry in the META-INF/mods.toml file
-@Mod(Reference.MOD_ID)
+@Mod(SocialBehaviorMod.MOD_ID)
 public class SocialBehaviorMod {
+    public static final String MOD_ID = "socialbehaviormod";
+
     // Directly reference a log4j logger.
     public static final Logger LOGGER = LogManager.getLogger();
 
     public SocialBehaviorMod() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        ItemInit.register(modEventBus);
-        BlockInit.register(modEventBus);
-        EntityTypesInit.register(modEventBus);
+        ModItems.register(modEventBus);
+        ModBlocks.register(modEventBus);
+        ModEntityTypes.register(modEventBus);
 
         // Register the setup method for modloading
         modEventBus.addListener(this::setup);
@@ -54,7 +55,7 @@ public class SocialBehaviorMod {
     private void setup(final FMLCommonSetupEvent event) {
         // some preinit code
         DeferredWorkQueue.runLater(() -> {
-            GlobalEntityTypeAttributes.put(EntityTypesInit.HOG.get(), HogEntity.setCustomAttributes().build());
+            GlobalEntityTypeAttributes.put(ModEntityTypes.HOG.get(), HogEntity.setCustomAttributes().build());
         });
     }
 

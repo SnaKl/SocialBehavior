@@ -1,8 +1,8 @@
-package com.socialbehavior.socialbehaviormod.common.entities;
+package com.socialbehavior.socialbehaviormod.entity.custom;
 
 import com.socialbehavior.socialbehaviormod.SocialBehaviorMod;
-import com.socialbehavior.socialbehaviormod.core.init.EntityTypesInit;
-import com.socialbehavior.socialbehaviormod.core.init.ItemInit;
+import com.socialbehavior.socialbehaviormod.entity.ModEntityTypes;
+import com.socialbehavior.socialbehaviormod.item.ModItems;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
@@ -31,7 +31,7 @@ import javax.annotation.Nullable;
 import java.util.*;
 
 public class HogEntity extends AnimalEntity {
-    private static final Item[] ITEMS = {ItemInit.silver_ingot.get()};
+    private static final Item[] ITEMS = {ModItems.silver_ingot.get()};
     private static final Ingredient TEMPTATION_ITEMS = Ingredient.of(ITEMS);
     private static final Set<Item> WANTED_ITEMS = new HashSet<>(Arrays.asList(ITEMS));
     private final Inventory inventory = new Inventory(8);
@@ -94,7 +94,7 @@ public class HogEntity extends AnimalEntity {
     @Nullable
     @Override
     public AgeableEntity getBreedOffspring(ServerWorld worldIn, AgeableEntity ageable) {
-        return EntityTypesInit.HOG.get().create(worldIn);
+        return ModEntityTypes.HOG.get().create(worldIn);
     }
 
     protected void customServerAiStep() {
