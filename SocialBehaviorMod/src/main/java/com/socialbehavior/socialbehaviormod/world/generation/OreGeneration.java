@@ -1,4 +1,4 @@
-package com.socialbehavior.socialbehaviormod.world.gen;
+package com.socialbehavior.socialbehaviormod.world.generation;
 
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.WorldGenRegistries;
