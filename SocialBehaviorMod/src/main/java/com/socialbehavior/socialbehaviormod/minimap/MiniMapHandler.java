@@ -1,5 +1,6 @@
 package com.socialbehavior.socialbehaviormod.minimap;
 
+import com.socialbehavior.socialbehaviormod.minimap.data.ChunkMiniMapData;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -97,23 +98,9 @@ public class MiniMapHandler {
         for (int x = 0; x < 16; x++) {
             int zColor = 0;
             for (int z = 0; z < 16; z++) {
-                final int xChunkPos = (chunk.getPos().x * 16) + x;
-                final int zChunkPos = (chunk.getPos().z * 16) + z;
-                final int height = chunk.getHeight(Heightmap.Type.WORLD_SURFACE, xChunkPos, zChunkPos);
+                Object[] result = this.getBlockData(chunk, x, z);
+                Color color = (Color) result[1];
 
-                BlockState blockState;
-                final BlockPos blockPos = new BlockPos(xChunkPos, height, zChunkPos);
-                if (height <= 1) {
-                    blockState = Blocks.BEDROCK.defaultBlockState();
-                } else {
-                    blockState = this.getWorld().getBlockState(blockPos);
-                    if (!blockState.getFluidState().isEmpty()) {
-                        blockState = this.getCorrectStateForFluidBlock(blockState, blockPos);
-                    }
-                }
-                final MaterialColor materialColor = blockState.getMapColor(chunk, blockPos);
-
-                final Color color = new Color(materialColor.col, false);
                 arrayColor[xColor][zColor] = color;
                 zColor++;
             }
@@ -121,6 +108,43 @@ public class MiniMapHandler {
         }
 
         return arrayColor;
+    }
+
+    public ChunkMiniMapData getChunkData(Chunk chunk) {
+        Map<String, ChunkMiniMapData.BlockContent> chunkData = new HashMap<>();
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                Object[] result = this.getBlockData(chunk, x, z);
+                BlockPos blockPos = (BlockPos) result[0];
+                Color color = (Color) result[1];
+
+                ChunkMiniMapData.BlockContent blockContent = new ChunkMiniMapData.BlockContent(blockPos, color.getRGB());
+                chunkData.put(Integer.toString(x) + "," + Integer.toString(z), blockContent);
+            }
+        }
+
+        return new ChunkMiniMapData(chunkData);
+    }
+
+    private Object[] getBlockData(Chunk chunk, int x, int z) {
+        final int xChunkPos = (chunk.getPos().x * 16) + x;
+        final int zChunkPos = (chunk.getPos().z * 16) + z;
+        final int height = chunk.getHeight(Heightmap.Type.WORLD_SURFACE, xChunkPos, zChunkPos);
+
+        BlockState blockState;
+        final BlockPos blockPos = new BlockPos(xChunkPos, height, zChunkPos);
+        if (height <= 1) {
+            blockState = Blocks.BEDROCK.defaultBlockState();
+        } else {
+            blockState = this.getWorld().getBlockState(blockPos);
+            if (!blockState.getFluidState().isEmpty()) {
+                blockState = this.getCorrectStateForFluidBlock(blockState, blockPos);
+            }
+        }
+        final MaterialColor materialColor = blockState.getMapColor(chunk, blockPos);
+        final Color color = new Color(materialColor.col, false);
+
+        return new Object[]{blockPos, color};
     }
 }
 

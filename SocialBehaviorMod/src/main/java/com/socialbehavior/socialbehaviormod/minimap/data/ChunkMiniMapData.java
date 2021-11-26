@@ -52,10 +52,6 @@ public class ChunkMiniMapData {
         return compoundnbt;
     }
 
-    public static ChunkMiniMapData createChunkMiniMapData(String chunkPos, Color[][] colorArray){
-
-    }
-
 //    public Map<String, BlockContent> getChunkData() {
 //        return chunkData;
 //    }
