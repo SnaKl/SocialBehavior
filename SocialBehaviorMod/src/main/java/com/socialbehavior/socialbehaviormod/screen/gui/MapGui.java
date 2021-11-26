@@ -1,11 +1,9 @@
 package com.socialbehavior.socialbehaviormod.screen.gui;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.socialbehavior.socialbehaviormod.SocialBehaviorMod;
-import com.socialbehavior.socialbehaviormod.map.MapHandler;
+import com.socialbehavior.socialbehaviormod.minimap.MiniMapHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
@@ -21,36 +19,36 @@ import java.util.Map;
 @OnlyIn(Dist.CLIENT)
 public class MapGui extends ForgeIngameGui {
     private final MatrixStack matrixStack;
-    private final MapHandler mapHandler;
+    private final MiniMapHandler miniMapHandler;
 
     public MapGui(Minecraft minecraft, MatrixStack matrixStack) {
         super(minecraft);
         this.matrixStack = matrixStack;
-        this.mapHandler = MapHandler.getInstance();
+        this.miniMapHandler = MiniMapHandler.getInstance();
 
         this.init();
     }
 
     private void init() {
-        this.drawMap(new Point2D.Double(0, 12), 2, 1);
-//        this.drawPlayerChunk(new Point2D.Double(0,10), 4);
+//        this.drawMap(new Point2D.Double(0, 12), 2, 1);
+        this.drawPlayerChunk(new Point2D.Double(0,10), 4);
 
         this.drawPlayerCoords(new Point2D.Double(1, 1), 0);
     }
 
     private void drawPlayerChunk(Point2D startPoint, int blockPixelSize) {
-        final Color[][] mapColor = this.mapHandler.getChunkColorMap(this.mapHandler.getChunkPlayer());
+        final Color[][] mapColor = this.miniMapHandler.getChunkColorMap(this.miniMapHandler.getChunkPlayer());
         this.drawChunkMap(mapColor, startPoint, blockPixelSize);
     }
 
     private void drawMap(Point2D pointStart, int radius, int blockPixelSize) {
-        Map<ChunkPos, Color[][]> map = this.mapHandler.createMap(radius);
-        ChunkPos chunkPlayerPosition = this.mapHandler.getChunkPlayerPosition();
+        Map<ChunkPos, Color[][]> map = this.miniMapHandler.createMap(radius);
+        ChunkPos chunkPlayerPosition = this.miniMapHandler.getChunkPlayerPosition();
         int xMap = 0;
         for (int chunkX = -radius; chunkX <= radius; chunkX++) {
             int yMap = 0;
             for (int chunkZ = -radius; chunkZ <= radius; chunkZ++) {
-                Chunk chunk = this.mapHandler.getWorld().getChunk(chunkPlayerPosition.x + chunkX, chunkPlayerPosition.z + chunkZ);
+                Chunk chunk = this.miniMapHandler.getWorld().getChunk(chunkPlayerPosition.x + chunkX, chunkPlayerPosition.z + chunkZ);
                 Color[][] colorMap = map.get(chunk.getPos());
 
                 int xPointStart = (int) pointStart.getX();
@@ -84,11 +82,11 @@ public class MapGui extends ForgeIngameGui {
 
     private void drawPlayerCoords(Point2D startPoint, int shadow) {
         StringTextComponent textComponent = new StringTextComponent("");
-        textComponent.append(new StringTextComponent(Integer.toString((int) this.mapHandler.getPlayerPosition().x())).withStyle(TextFormatting.RED));
+        textComponent.append(new StringTextComponent(Integer.toString((int) this.miniMapHandler.getPlayerPosition().x())).withStyle(TextFormatting.RED));
         textComponent.append(new StringTextComponent(", ").withStyle(TextFormatting.WHITE));
-        textComponent.append(new StringTextComponent(Integer.toString((int) this.mapHandler.getPlayerPosition().y())).withStyle(TextFormatting.BLUE));
+        textComponent.append(new StringTextComponent(Integer.toString((int) this.miniMapHandler.getPlayerPosition().y())).withStyle(TextFormatting.BLUE));
         textComponent.append(new StringTextComponent(", ").withStyle(TextFormatting.WHITE));
-        textComponent.append(new StringTextComponent(Integer.toString((int) this.mapHandler.getPlayerPosition().z())).withStyle(TextFormatting.GREEN));
+        textComponent.append(new StringTextComponent(Integer.toString((int) this.miniMapHandler.getPlayerPosition().z())).withStyle(TextFormatting.GREEN));
 
         this.getFont().drawShadow(this.matrixStack, textComponent, (float) startPoint.getX(), (float) startPoint.getY(), shadow);
     }
