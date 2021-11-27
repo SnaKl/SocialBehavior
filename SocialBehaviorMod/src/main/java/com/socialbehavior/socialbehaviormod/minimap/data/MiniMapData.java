@@ -81,40 +81,43 @@ public class MiniMapData extends WorldSavedData {
         return compoundNBT;
     }
 
-    public void updateBlockPos(String chunk, String block, BlockPos blockPos) {
-        this.chunksData.get(chunk).getBlockContent(block).setBlockPos(blockPos);
+    public void updateBlockPos(String chunkPosString, String blockPosString, BlockPos blockPos) {
+        this.chunksData.get(chunkPosString).getBlockContent(blockPosString).setBlockPos(blockPos);
         this.setDirty();
     }
 
-    public void updateBlockColor(String chunk, String block, int color) {
-        this.chunksData.get(chunk).getBlockContent(block).setBlockColor(color);
+    public void updateBlockColor(String chunkPosString, String blockPosString, int color) {
+        this.chunksData.get(chunkPosString).getBlockContent(blockPosString).setBlockColor(color);
         this.setDirty();
     }
 
-    public void setBlockContent(String chunk, String block, ChunkMiniMapData.BlockContent blockContent) {
-        this.chunksData.get(chunk).setBlockContent(block, blockContent);
+    public void setBlockContent(String chunkPosString, String blockPosString, ChunkMiniMapData.BlockContent blockContent) {
+        this.chunksData.get(chunkPosString).setBlockContent(blockPosString, blockContent);
         this.setDirty();
     }
 
-    public ChunkMiniMapData.BlockContent getBlockContent(String chunk, String block) {
-        return this.chunksData.get(block).getBlockContent(block);
+    public ChunkMiniMapData.BlockContent getBlockContent(String chunkPosString, String blockChunkPosString, Boolean modify) {
+        ChunkMiniMapData chunkMiniMapData = this.chunksData.get(chunkPosString);
+        if(chunkMiniMapData == null) return null;
+        if(modify) this.setDirty();
+        return chunkMiniMapData.getBlockContent(blockChunkPosString);
     }
 
-    public void setChunkData(String chunk, ChunkMiniMapData chunkData) {
-        this.chunksData.replace(chunk, chunkData);
+    public void setChunkData(String chunkPosString, ChunkMiniMapData chunkData) {
+        this.chunksData.replace(chunkPosString, chunkData);
         this.setDirty();
     }
 
-    public ChunkMiniMapData getChunkData(String chunk) {
-        return this.chunksData.get(chunk);
+    public ChunkMiniMapData getChunkData(String chunkPosString) {
+        return this.chunksData.get(chunkPosString);
     }
 
-    public void addChunk(String chunk, ChunkMiniMapData chunkData) {
-        this.chunksData.putIfAbsent(chunk, chunkData);
+    public void addChunk(String chunkPosString, ChunkMiniMapData chunkData) {
+        this.chunksData.putIfAbsent(chunkPosString, chunkData);
         this.setDirty();
     }
 
-    public Boolean chunkIsPresent(String chunk) {
-        return this.chunksData.containsKey(chunk);
+    public Boolean chunkIsPresent(String chunkPosString) {
+        return this.chunksData.containsKey(chunkPosString);
     }
 }

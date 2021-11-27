@@ -1,10 +1,12 @@
 package com.socialbehavior.socialbehaviormod.screen.gui;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.socialbehavior.socialbehaviormod.SocialBehaviorMod;
 import com.socialbehavior.socialbehaviormod.minimap.MiniMapHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.chunk.Chunk;
@@ -19,12 +21,10 @@ import java.util.Map;
 @OnlyIn(Dist.CLIENT)
 public class MapGui extends ForgeIngameGui {
     private final MatrixStack matrixStack;
-    private final MiniMapHandler miniMapHandler;
 
     public MapGui(Minecraft minecraft, MatrixStack matrixStack) {
         super(minecraft);
         this.matrixStack = matrixStack;
-        this.miniMapHandler = MiniMapHandler.getInstance();
 
         this.init();
     }
@@ -37,18 +37,20 @@ public class MapGui extends ForgeIngameGui {
     }
 
     private void drawPlayerChunk(Point2D startPoint, int blockPixelSize) {
-        final Color[][] mapColor = this.miniMapHandler.getChunkColorMap(this.miniMapHandler.getChunkPlayer());
+        Chunk chunk = MiniMapHandler.getChunkPlayer();
+        final Color[][] mapColor = MiniMapHandler.getChunkColorMap(chunk);
+        assert mapColor != null;
         this.drawChunkMap(mapColor, startPoint, blockPixelSize);
     }
 
     private void drawMap(Point2D pointStart, int radius, int blockPixelSize) {
-        Map<ChunkPos, Color[][]> map = this.miniMapHandler.createMap(radius);
-        ChunkPos chunkPlayerPosition = this.miniMapHandler.getChunkPlayerPosition();
+        Map<ChunkPos, Color[][]> map = MiniMapHandler.createMap(radius);
+        ChunkPos chunkPlayerPosition = MiniMapHandler.getChunkPlayerPosition();
         int xMap = 0;
         for (int chunkX = -radius; chunkX <= radius; chunkX++) {
             int yMap = 0;
             for (int chunkZ = -radius; chunkZ <= radius; chunkZ++) {
-                Chunk chunk = this.miniMapHandler.getWorld().getChunk(chunkPlayerPosition.x + chunkX, chunkPlayerPosition.z + chunkZ);
+                Chunk chunk = MiniMapHandler.getWorld().getChunk(chunkPlayerPosition.x + chunkX, chunkPlayerPosition.z + chunkZ);
                 Color[][] colorMap = map.get(chunk.getPos());
 
                 int xPointStart = (int) pointStart.getX();
@@ -82,11 +84,12 @@ public class MapGui extends ForgeIngameGui {
 
     private void drawPlayerCoords(Point2D startPoint, int shadow) {
         StringTextComponent textComponent = new StringTextComponent("");
-        textComponent.append(new StringTextComponent(Integer.toString((int) this.miniMapHandler.getPlayerPosition().x())).withStyle(TextFormatting.RED));
+        Vector3d playerPosition = MiniMapHandler.getPlayerPosition();
+        textComponent.append(new StringTextComponent(Integer.toString((int)playerPosition.x())).withStyle(TextFormatting.RED));
         textComponent.append(new StringTextComponent(", ").withStyle(TextFormatting.WHITE));
-        textComponent.append(new StringTextComponent(Integer.toString((int) this.miniMapHandler.getPlayerPosition().y())).withStyle(TextFormatting.BLUE));
+        textComponent.append(new StringTextComponent(Integer.toString((int) playerPosition.y())).withStyle(TextFormatting.BLUE));
         textComponent.append(new StringTextComponent(", ").withStyle(TextFormatting.WHITE));
-        textComponent.append(new StringTextComponent(Integer.toString((int) this.miniMapHandler.getPlayerPosition().z())).withStyle(TextFormatting.GREEN));
+        textComponent.append(new StringTextComponent(Integer.toString((int) playerPosition.z())).withStyle(TextFormatting.GREEN));
 
         this.getFont().drawShadow(this.matrixStack, textComponent, (float) startPoint.getX(), (float) startPoint.getY(), shadow);
     }
