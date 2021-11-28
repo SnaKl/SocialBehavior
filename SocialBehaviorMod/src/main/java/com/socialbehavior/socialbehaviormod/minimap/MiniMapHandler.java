@@ -1,7 +1,7 @@
 package com.socialbehavior.socialbehaviormod.minimap;
 
 import com.socialbehavior.socialbehaviormod.minimap.data.ChunkMiniMapData;
-import net.minecraft.block.Block;
+import com.socialbehavior.socialbehaviormod.minimap.data.MiniMapData;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.material.MaterialColor;
@@ -15,15 +15,16 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.Heightmap;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.server.ServerWorld;
 
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-public class MiniMapHandler {
-    public static Map<String, Integer> minecraftMapBlockColor = ForgeRegistries.BLOCKS.getValues()
+public final class MiniMapHandler {
+    private static final Minecraft minecraft = Minecraft.getInstance();
+
+/*    public static Map<String, Integer> minecraftMapBlockColor = ForgeRegistries.BLOCKS.getValues()
             .stream()
             .distinct()
             .filter(block -> block.defaultMaterialColor().col != 0)
@@ -31,57 +32,94 @@ public class MiniMapHandler {
                     Block::getDescriptionId,
                     block -> new Color(block.defaultMaterialColor().col, false).getRGB(),
                     (a1, a2) -> a2));
-    private static MiniMapHandler instance;
-    private final Minecraft minecraft;
+                    */
 
-    public MiniMapHandler() {
-        instance = this;
-        this.minecraft = Minecraft.getInstance();
+    public static int getWorldBlockPos(int chunkPos, int blockPosInChunk) {
+        return (chunkPos * 16) + blockPosInChunk;
     }
 
-    public static MiniMapHandler getInstance() {
-        if (instance == null) new MiniMapHandler();
-        return instance;
+    public static int getBlockPosInChunk(int chunkPos, int blockPosInWorld) {
+        return blockPosInWorld - (chunkPos * 16);
     }
 
-    public World getWorld() {
-        return this.minecraft.level;
+    public static int getTopBlockPosition(Chunk chunk, int xBlockPosInChunk, int zBlockPosInChunk) {
+        return chunk.getHeight(Heightmap.Type.WORLD_SURFACE, xBlockPosInChunk, zBlockPosInChunk);
     }
 
-    public ClientPlayerEntity getPlayer() {
-        assert this.minecraft.player != null;
-        return this.minecraft.player;
+    public static Color getBlockColor(Chunk chunk, BlockPos blockPos) {
+        BlockState blockState;
+        if (blockPos.getY() <= 1) {
+            blockState = Blocks.BEDROCK.defaultBlockState();
+        } else {
+            blockState = getWorld().getBlockState(blockPos);
+            if (!blockState.getFluidState().isEmpty()) {
+                blockState = getCorrectStateForFluidBlock(blockState, blockPos);
+            }
+        }
+        final MaterialColor materialColor = blockState.getMapColor(chunk, blockPos);
+        return new Color(materialColor.col, false);
     }
 
-    public Vector3d getPlayerPosition() {
-        return this.getPlayer().position();
+    public static World getWorld() {
+        World world = minecraft.level;
+        assert world != null;
+        return world;
     }
 
-    public BlockPos getBlockPlayerPosition() {
-        return new BlockPos(this.getPlayerPosition());
-    }
-
-    public Chunk getChunkPlayer() {
-        return this.getWorld().getChunkAt(this.getBlockPlayerPosition());
-    }
-
-    public ChunkPos getChunkPlayerPosition() {
-        return this.getChunkPlayer().getPos();
-    }
-
-    private BlockState getCorrectStateForFluidBlock(BlockState blockState, BlockPos blockPos) {
+    public static BlockState getCorrectStateForFluidBlock(BlockState blockState, BlockPos blockPos) {
         FluidState fluidstate = blockState.getFluidState();
-        return !fluidstate.isEmpty() && !blockState.isFaceSturdy(this.getWorld(), blockPos, Direction.UP) ? fluidstate.createLegacyBlock() : blockState;
+        return !fluidstate.isEmpty() && !blockState.isFaceSturdy(getWorld(), blockPos, Direction.UP) ? fluidstate.createLegacyBlock() : blockState;
     }
 
-    public Map<ChunkPos, Color[][]> createMap(int radius) {
+    public static ChunkMiniMapData getChunkData(Chunk chunk) {
+        Map<String, ChunkMiniMapData.BlockContent> chunkData = new HashMap<>();
+        ChunkPos chunkPos = chunk.getPos();
+
+        for (int x = 0; x < 16; x++) {
+            for (int z = 0; z < 16; z++) {
+                int xWorldBlockPos = getWorldBlockPos(chunkPos.x, x);
+                int zWorldBlockPos = getWorldBlockPos(chunkPos.z, z);
+                int yWorldBlockPos = getTopBlockPosition(chunk, xWorldBlockPos, zWorldBlockPos);
+                BlockPos blockPos = new BlockPos(xWorldBlockPos, yWorldBlockPos, zWorldBlockPos);
+                int color = getBlockColor(chunk, blockPos).getRGB();
+
+                ChunkMiniMapData.BlockContent blockContent = new ChunkMiniMapData.BlockContent(blockPos, color);
+                chunkData.put(x + "," + z, blockContent);
+            }
+        }
+
+        return new ChunkMiniMapData(chunkData);
+    }
+
+    public static ClientPlayerEntity getPlayer() {
+        assert minecraft.player != null;
+        return minecraft.player;
+    }
+
+    public static Vector3d getPlayerPosition() {
+        return getPlayer().position();
+    }
+
+    public static BlockPos getBlockPlayerPosition() {
+        return new BlockPos(getPlayerPosition());
+    }
+
+    public static Chunk getChunkPlayer() {
+        return getWorld().getChunkAt(getBlockPlayerPosition());
+    }
+
+    public static ChunkPos getChunkPlayerPosition() {
+        return getChunkPlayer().getPos();
+    }
+
+    public static Map<ChunkPos, Color[][]> createMap(int radius) {
         Map<ChunkPos, Color[][]> mapChunkColorMap = new HashMap<>();
-        ChunkPos chunkPlayerPosition = this.getChunkPlayerPosition();
+        ChunkPos chunkPlayerPosition = getChunkPlayerPosition();
 
         for (int chunkX = -radius; chunkX <= radius; chunkX++) {
             for (int chunkZ = -radius; chunkZ <= radius; chunkZ++) {
-                Chunk chunk = this.getWorld().getChunk(chunkPlayerPosition.x + chunkX, chunkPlayerPosition.z + chunkZ);
-                Color[][] chunkColorMap = this.getChunkColorMap(chunk);
+                Chunk chunk = getWorld().getChunk(chunkPlayerPosition.x + chunkX, chunkPlayerPosition.z + chunkZ);
+                Color[][] chunkColorMap = getChunkColorMap(chunk);
                 mapChunkColorMap.put(chunk.getPos(), chunkColorMap);
             }
         }
@@ -89,17 +127,21 @@ public class MiniMapHandler {
         return mapChunkColorMap;
     }
 
-    public Color[][] getChunkColorMap(Chunk chunk) {
-        if (this.getWorld().dimension() != this.getPlayer().level.dimension()) return null;
+    public static Color[][] getChunkColorMap(Chunk chunk) {
+        if (getWorld().dimension() != getPlayer().level.dimension()) return null;
 
         final Color[][] arrayColor = new Color[16][16];
+        ChunkPos chunkPos = chunk.getPos();
 
         int xColor = 0;
         for (int x = 0; x < 16; x++) {
             int zColor = 0;
             for (int z = 0; z < 16; z++) {
-                Object[] result = this.getBlockData(chunk, x, z);
-                Color color = (Color) result[1];
+                int xWorldBlockPos = getWorldBlockPos(chunkPos.x, x);
+                int zWorldBlockPos = getWorldBlockPos(chunkPos.z, z);
+                int yWorldBlockPos = getTopBlockPosition(chunk, xWorldBlockPos, zWorldBlockPos);
+                BlockPos blockPos = new BlockPos(xWorldBlockPos, yWorldBlockPos, zWorldBlockPos);
+                Color color = getBlockColor(chunk, blockPos);
 
                 arrayColor[xColor][zColor] = color;
                 zColor++;
@@ -110,62 +152,30 @@ public class MiniMapHandler {
         return arrayColor;
     }
 
-    public ChunkMiniMapData getChunkData(Chunk chunk) {
-        Map<String, ChunkMiniMapData.BlockContent> chunkData = new HashMap<>();
-        for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
-                Object[] result = this.getBlockData(chunk, x, z);
-                BlockPos blockPos = (BlockPos) result[0];
-                Color color = (Color) result[1];
+    public static void updateBlockInMiniMap(ServerWorld world, BlockPos blockPos) {
+        Chunk chunk = MiniMapHandler.getWorld().getChunkAt(blockPos);
 
-                ChunkMiniMapData.BlockContent blockContent = new ChunkMiniMapData.BlockContent(blockPos, color.getRGB());
-                chunkData.put(Integer.toString(x) + "," + Integer.toString(z), blockContent);
-            }
+        int yTopBlockPos = MiniMapHandler.getTopBlockPosition(chunk, blockPos.getX(), blockPos.getZ());
+        if (yTopBlockPos > blockPos.getY()) return;
+
+        ChunkPos chunkPos = chunk.getPos();
+        final int color = MiniMapHandler.getBlockColor(chunk, blockPos).getRGB();
+
+        final int blockPosX = MiniMapHandler.getBlockPosInChunk(chunkPos.x, blockPos.getX());
+        final int blockPosZ = MiniMapHandler.getBlockPosInChunk(chunkPos.z, blockPos.getZ());
+
+        String chunkPosString = chunkPos.x + "," + chunkPos.z;
+        String blockPosString = blockPosX + "," + blockPosZ;
+        MiniMapData miniMapData = MiniMapData.getInstance(world);
+
+        ChunkMiniMapData.BlockContent blockContent = miniMapData.getBlockContent(chunkPosString, blockPosString, true);
+        if (blockContent == null) return;
+
+        if (blockContent.getBlockPos() != blockPos) {
+            blockContent.setBlockPos(blockPos);
         }
-
-        return new ChunkMiniMapData(chunkData);
-    }
-
-    private Object[] getBlockData(Chunk chunk, int x, int z) {
-        final int xChunkPos = (chunk.getPos().x * 16) + x;
-        final int zChunkPos = (chunk.getPos().z * 16) + z;
-        final int height = chunk.getHeight(Heightmap.Type.WORLD_SURFACE, xChunkPos, zChunkPos);
-
-        BlockState blockState;
-        final BlockPos blockPos = new BlockPos(xChunkPos, height, zChunkPos);
-        if (height <= 1) {
-            blockState = Blocks.BEDROCK.defaultBlockState();
-        } else {
-            blockState = this.getWorld().getBlockState(blockPos);
-            if (!blockState.getFluidState().isEmpty()) {
-                blockState = this.getCorrectStateForFluidBlock(blockState, blockPos);
-            }
+        if (blockContent.getBlockColor() != color) {
+            blockContent.setBlockColor(color);
         }
-        final MaterialColor materialColor = blockState.getMapColor(chunk, blockPos);
-        final Color color = new Color(materialColor.col, false);
-
-        return new Object[]{blockPos, color};
     }
 }
-
-
-/*
-    public static void saveBlockColorData(File file, Map<String, Integer> mapBlockColor) throws IOException {
-        CompoundNBT colorData = new CompoundNBT();
-        for (Map.Entry<String, Integer> blockColor : mapBlockColor.entrySet()) {
-            colorData.putInt(blockColor.getKey(), blockColor.getValue());
-        }
-        CompressedStreamTools.writeCompressed(colorData, file);
-    }
-
-    public static Map<String, Integer> getBlockColorDate(File file) throws IOException {
-        Map<String, Integer> mapBlockColor = new HashMap<>();
-        CompoundNBT pip = CompressedStreamTools.readCompressed(file);
-
-        for (String blockString : pip.getAllKeys()) {
-            mapBlockColor.put(blockString, pip.getInt(blockString));
-        }
-
-        return mapBlockColor;
-    }
-*/
