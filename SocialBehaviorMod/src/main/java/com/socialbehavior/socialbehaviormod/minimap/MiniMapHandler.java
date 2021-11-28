@@ -1,7 +1,7 @@
 package com.socialbehavior.socialbehaviormod.minimap;
 
 import com.socialbehavior.socialbehaviormod.minimap.data.ChunkMiniMapData;
-import net.minecraft.block.Block;
+import com.socialbehavior.socialbehaviormod.minimap.data.MiniMapData;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.material.MaterialColor;
@@ -15,12 +15,11 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.gen.Heightmap;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraft.world.server.ServerWorld;
 
 import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public final class MiniMapHandler {
     private static final Minecraft minecraft = Minecraft.getInstance();
@@ -74,15 +73,18 @@ public final class MiniMapHandler {
 
     public static ChunkMiniMapData getChunkData(Chunk chunk) {
         Map<String, ChunkMiniMapData.BlockContent> chunkData = new HashMap<>();
+        ChunkPos chunkPos = chunk.getPos();
 
         for (int x = 0; x < 16; x++) {
             for (int z = 0; z < 16; z++) {
-                int y = getTopBlockPosition(chunk, x, z);
-                BlockPos blockPos = new BlockPos(x, y, z);
+                int xWorldBlockPos = getWorldBlockPos(chunkPos.x, x);
+                int zWorldBlockPos = getWorldBlockPos(chunkPos.z, z);
+                int yWorldBlockPos = getTopBlockPosition(chunk, xWorldBlockPos, zWorldBlockPos);
+                BlockPos blockPos = new BlockPos(xWorldBlockPos, yWorldBlockPos, zWorldBlockPos);
                 int color = getBlockColor(chunk, blockPos).getRGB();
 
                 ChunkMiniMapData.BlockContent blockContent = new ChunkMiniMapData.BlockContent(blockPos, color);
-                chunkData.put(Integer.toString(x) + "," + Integer.toString(z), blockContent);
+                chunkData.put(x + "," + z, blockContent);
             }
         }
 
@@ -148,5 +150,32 @@ public final class MiniMapHandler {
         }
 
         return arrayColor;
+    }
+
+    public static void updateBlockInMiniMap(ServerWorld world, BlockPos blockPos) {
+        Chunk chunk = MiniMapHandler.getWorld().getChunkAt(blockPos);
+
+        int yTopBlockPos = MiniMapHandler.getTopBlockPosition(chunk, blockPos.getX(), blockPos.getZ());
+        if (yTopBlockPos > blockPos.getY()) return;
+
+        ChunkPos chunkPos = chunk.getPos();
+        final int color = MiniMapHandler.getBlockColor(chunk, blockPos).getRGB();
+
+        final int blockPosX = MiniMapHandler.getBlockPosInChunk(chunkPos.x, blockPos.getX());
+        final int blockPosZ = MiniMapHandler.getBlockPosInChunk(chunkPos.z, blockPos.getZ());
+
+        String chunkPosString = chunkPos.x + "," + chunkPos.z;
+        String blockPosString = blockPosX + "," + blockPosZ;
+        MiniMapData miniMapData = MiniMapData.getInstance(world);
+
+        ChunkMiniMapData.BlockContent blockContent = miniMapData.getBlockContent(chunkPosString, blockPosString, true);
+        if (blockContent == null) return;
+
+        if (blockContent.getBlockPos() != blockPos) {
+            blockContent.setBlockPos(blockPos);
+        }
+        if (blockContent.getBlockColor() != color) {
+            blockContent.setBlockColor(color);
+        }
     }
 }

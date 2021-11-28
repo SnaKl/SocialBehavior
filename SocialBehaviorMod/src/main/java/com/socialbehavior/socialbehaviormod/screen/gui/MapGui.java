@@ -1,7 +1,6 @@
 package com.socialbehavior.socialbehaviormod.screen.gui;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.socialbehavior.socialbehaviormod.SocialBehaviorMod;
 import com.socialbehavior.socialbehaviormod.minimap.MiniMapHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.AbstractGui;
@@ -31,7 +30,7 @@ public class MapGui extends ForgeIngameGui {
 
     private void init() {
 //        this.drawMap(new Point2D.Double(0, 12), 2, 1);
-        this.drawPlayerChunk(new Point2D.Double(0,10), 4);
+        this.drawPlayerChunk(new Point2D.Double(0, 10), 4);
 
         this.drawPlayerCoords(new Point2D.Double(1, 1), 0);
     }
@@ -85,7 +84,7 @@ public class MapGui extends ForgeIngameGui {
     private void drawPlayerCoords(Point2D startPoint, int shadow) {
         StringTextComponent textComponent = new StringTextComponent("");
         Vector3d playerPosition = MiniMapHandler.getPlayerPosition();
-        textComponent.append(new StringTextComponent(Integer.toString((int)playerPosition.x())).withStyle(TextFormatting.RED));
+        textComponent.append(new StringTextComponent(Integer.toString((int) playerPosition.x())).withStyle(TextFormatting.RED));
         textComponent.append(new StringTextComponent(", ").withStyle(TextFormatting.WHITE));
         textComponent.append(new StringTextComponent(Integer.toString((int) playerPosition.y())).withStyle(TextFormatting.BLUE));
         textComponent.append(new StringTextComponent(", ").withStyle(TextFormatting.WHITE));
