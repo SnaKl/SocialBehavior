@@ -8,11 +8,14 @@ import com.socialbehavior.socialbehaviormod.screen.gui.MapGui;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.material.MaterialColor;
 import net.minecraft.client.Minecraft;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
+import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -55,10 +58,8 @@ public class ModEvents {
 
         ChunkPos chunkPos = event.getChunk().getPos();
         String chunkPosString = chunkPos.x + "," + chunkPos.z;
-        if (!miniMapData.chunkIsPresent(chunkPosString)) {
-            ChunkMiniMapData chunkMiniMapData = MiniMapHandler.getChunkData((Chunk) event.getChunk());
-            miniMapData.addChunk(chunkPosString, chunkMiniMapData);
-        }
+
+        miniMapData.addChunk(chunkPosString, (Chunk) event.getChunk());
     }
 
     @SubscribeEvent
@@ -69,6 +70,11 @@ public class ModEvents {
     @SubscribeEvent
     public static void onBlockPlace(BlockEvent.EntityPlaceEvent event) {
         MiniMapHandler.updateBlockInMiniMap((ServerWorld) event.getWorld(), event.getPos());
+    }
+
+    @SubscribeEvent
+    public static void test(EntityJoinWorldEvent event) {
+        SocialBehaviorMod.LOGGER.info("TEST");
     }
 
 }

@@ -52,9 +52,9 @@ public class ChunkMiniMapData {
         return compoundnbt;
     }
 
-//    public Map<String, BlockContent> getChunkData() {
-//        return chunkData;
-//    }
+    public Map<String, BlockContent> getChunkData() {
+        return chunkData;
+    }
 
     public void setBlockContent(String block, BlockContent blockContent) {
         this.chunkData.replace(block, blockContent);

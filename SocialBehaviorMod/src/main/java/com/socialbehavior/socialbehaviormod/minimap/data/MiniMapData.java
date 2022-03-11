@@ -1,10 +1,12 @@
 package com.socialbehavior.socialbehaviormod.minimap.data;
 
 import com.socialbehavior.socialbehaviormod.SocialBehaviorMod;
+import com.socialbehavior.socialbehaviormod.minimap.MiniMapHandler;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraft.world.chunk.Chunk;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraft.world.storage.DimensionSavedDataManager;
 import net.minecraft.world.storage.WorldSavedData;
@@ -98,8 +100,8 @@ public class MiniMapData extends WorldSavedData {
 
     public ChunkMiniMapData.BlockContent getBlockContent(String chunkPosString, String blockChunkPosString, Boolean modify) {
         ChunkMiniMapData chunkMiniMapData = this.chunksData.get(chunkPosString);
-        if(chunkMiniMapData == null) return null;
-        if(modify) this.setDirty();
+        if (chunkMiniMapData == null) return null;
+        if (modify) this.setDirty();
         return chunkMiniMapData.getBlockContent(blockChunkPosString);
     }
 
@@ -115,6 +117,12 @@ public class MiniMapData extends WorldSavedData {
     public void addChunk(String chunkPosString, ChunkMiniMapData chunkData) {
         this.chunksData.putIfAbsent(chunkPosString, chunkData);
         this.setDirty();
+    }
+
+    public void addChunk(String chunkPosString, Chunk chunk) {
+        if (this.chunkIsPresent(chunkPosString)) return;
+        ChunkMiniMapData chunkMiniMapData = MiniMapHandler.getChunkData(chunk);
+        this.addChunk(chunkPosString, chunkMiniMapData);
     }
 
     public Boolean chunkIsPresent(String chunkPosString) {
