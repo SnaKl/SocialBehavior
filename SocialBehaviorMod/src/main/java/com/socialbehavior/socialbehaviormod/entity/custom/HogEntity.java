@@ -62,7 +62,7 @@ public class HogEntity extends AnimalEntity {
         this.goalSelector.addGoal(2, this.eatGrassGoal);
         this.goalSelector.addGoal(3, new PanicGoal(this, 1.25));
         this.goalSelector.addGoal(4, new BreedGoal(this, 1D));
-//        this.goalSelector.addGoal(5, new TemptGoal(this, 1D, TEMPTATION_ITEMS, false));
+        this.goalSelector.addGoal(5, new TemptGoal(this, 1D, TEMPTATION_ITEMS, false));
         this.goalSelector.addGoal(6, new FollowParentGoal(this, 1D));
         this.goalSelector.addGoal(7, new WaterAvoidingRandomWalkingGoal(this, 1D));
         this.goalSelector.addGoal(8, new LookAtGoal(this, PlayerEntity.class, 6.0F));

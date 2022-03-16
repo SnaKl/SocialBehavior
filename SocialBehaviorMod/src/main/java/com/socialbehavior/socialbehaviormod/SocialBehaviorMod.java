@@ -2,15 +2,12 @@ package com.socialbehavior.socialbehaviormod;
 
 import com.socialbehavior.socialbehaviormod.block.ModBlocks;
 import com.socialbehavior.socialbehaviormod.entity.ModEntityTypes;
-import com.socialbehavior.socialbehaviormod.entity.custom.HogEntity;
 import com.socialbehavior.socialbehaviormod.item.ModItems;
 import net.minecraft.block.Block;
-import net.minecraft.entity.ai.attributes.GlobalEntityTypeAttributes;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.DeferredWorkQueue;
 import net.minecraftforge.fml.InterModComms;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -52,12 +49,7 @@ public class SocialBehaviorMod {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    private void setup(final FMLCommonSetupEvent event) {
-        // some preinit code
-        DeferredWorkQueue.runLater(() -> {
-            GlobalEntityTypeAttributes.put(ModEntityTypes.HOG.get(), HogEntity.setCustomAttributes().build());
-        });
-    }
+    private void setup(final FMLCommonSetupEvent event) { }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
         // do something that can only be done on the client
