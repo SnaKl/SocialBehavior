@@ -2,40 +2,29 @@ package com.socialbehavior.socialbehaviormod.entity.custom.npc.types;
 
 import com.google.common.collect.ImmutableMap;
 
-import java.util.Map;
+import javax.annotation.Nullable;
+import java.lang.reflect.Field;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
-import javax.annotation.Nullable;
 
 public enum ECharacterType {
-    BRAVE("brave", 127, -100, 0, -10, 40, 60, 90, 120, 100),
-    FEARFUL("fearful", -127, 100, 40,80,80, 20, -30, -60, 0);
+    BRAVE("brave", new Character(127, -100, 0, -10, 40, 60, 90, 120, 100)),
+    FEARFUL("fearful", new Character(-128, 100, 40,80,80, 20, -30, -60, 0));
 
-    public final String id;
-    public final byte courage;
-    public final byte fear;
-    public final byte intellect;
-    public final byte sensibility;
-    public final byte energy;
-    public final byte friendliness;
-    public final byte positivity;
-    public final byte altruism;
-    public final byte curiosity;
+    public String id;
+    public Character character;
+
     private static final Map<String, ECharacterType> BY_ID = Stream.of(values()).collect(ImmutableMap.toImmutableMap((character) -> {
         return character.id;
     }, Function.identity()));
+    private static final List<ECharacterType> VALUES = Collections.unmodifiableList(Arrays.asList(values()));
+    private static final int SIZE = VALUES.size();
+    private static final Random RANDOM = new Random();
 
-    ECharacterType(String id, int courage, int fear, int intellect, int sensibility, int energy, int friendliness, int positivity, int altruism, int curiosity) {
+    ECharacterType(String id, Character character) {
         this.id = id;
-        this.courage = (byte)courage;
-        this.fear = (byte)fear;
-        this.intellect = (byte)intellect;
-        this.sensibility = (byte)sensibility;
-        this.energy = (byte)energy;
-        this.friendliness = (byte)friendliness;
-        this.positivity = (byte)positivity;
-        this.altruism = (byte)altruism;
-        this.curiosity = (byte)curiosity;
+        this.character = character;
     }
 
     @Nullable
@@ -43,4 +32,50 @@ public enum ECharacterType {
         return BY_ID.get(id);
     }
 
+    public static ECharacterType getRandomCharacterType()  {
+        return VALUES.get(RANDOM.nextInt(SIZE));
+    }
+
+    public static class ResultTypeNameWithMatchPercentage {
+        public final String typeName;
+        public final float matchPercentage;
+
+        public ResultTypeNameWithMatchPercentage(String typeName, float matchPercentage) {
+            this.typeName = typeName;
+            this.matchPercentage = matchPercentage;
+        }
+    }
+
+    public static ResultTypeNameWithMatchPercentage getNearestCharacterTypeName(Character character) {
+        Field[] fields = Character.class.getDeclaredFields();
+        float maximumMatchPercentage = Float.MIN_VALUE;
+        int maximumGap = 255 * fields.length;
+        String idCharacterType = "";
+
+        for (ECharacterType characterType : ECharacterType.values()) {
+            int gap = 0;
+            for (Field field : fields) {
+                String name = field.getName();
+                int value1 = 0;
+                int value2 = 0;
+                int result = 0;
+                try {
+                    value1 = field.getInt(characterType.character);
+                    value2 = field.getInt(character);
+                    result = Math.abs(value2 - value1);
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+                gap += result;
+            }
+            if(gap == 0) return new ResultTypeNameWithMatchPercentage(characterType.id, 100);
+
+            float gapPercentage = Math.abs((((float)gap/maximumGap)-1)*100);
+            if( gapPercentage > maximumMatchPercentage){
+                maximumMatchPercentage = gapPercentage;
+                idCharacterType = characterType.id;
+            }
+        }
+        return new ResultTypeNameWithMatchPercentage(idCharacterType, maximumMatchPercentage);
+    }
 }
