@@ -21,10 +21,10 @@ public class ModEntityTypes {
                     .clientTrackingRange(10)
                     .build(new ResourceLocation(SocialBehaviorMod.MOD_ID, "hog").toString()));
 
-    public static final RegistryObject<EntityType<NpcEntity>> NPC = ENTITY_TYPES.register("npc",
-            () -> EntityType.Builder.of(NpcEntity::new, EntityClassification.CREATURE)
-                    .sized(0.9F, 1.4F)
-                    .build(new ResourceLocation("textures/entity/villager/villager.png").toString()));
+    public static final EntityType<NpcEntity> NPC_TYPE = EntityType.Builder.of(NpcEntity::new, EntityClassification.CREATURE)
+            .sized(0.9F, 1.4F)
+            .build(new ResourceLocation("textures/entity/villager/villager.png").toString());
+    public static final RegistryObject<EntityType<NpcEntity>> NPC = ENTITY_TYPES.register("npc", () -> NPC_TYPE);
 
     public static void register(IEventBus modEventBus) {
         ENTITY_TYPES.register(modEventBus);

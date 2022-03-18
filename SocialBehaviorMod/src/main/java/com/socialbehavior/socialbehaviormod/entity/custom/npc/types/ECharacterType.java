@@ -1,6 +1,9 @@
 package com.socialbehavior.socialbehaviormod.entity.custom.npc.types;
 
 import com.google.common.collect.ImmutableMap;
+import com.mojang.brigadier.suggestion.SuggestionProvider;
+import net.minecraft.command.CommandSource;
+import net.minecraft.command.ISuggestionProvider;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
@@ -10,17 +13,18 @@ import java.util.stream.Stream;
 
 public enum ECharacterType {
     BRAVE("brave", new Character(127, -100, 0, -10, 40, 60, 90, 120, 100)),
-    FEARFUL("fearful", new Character(-128, 100, 40,80,80, 20, -30, -60, 0));
-
-    public String id;
-    public Character character;
+    FEARFUL("fearful", new Character(-128, 100, 40, 80, 80, 20, -30, -60, 0));
 
     private static final Map<String, ECharacterType> BY_ID = Stream.of(values()).collect(ImmutableMap.toImmutableMap((character) -> {
         return character.id;
     }, Function.identity()));
+    public static final SuggestionProvider<CommandSource> TYPE = (context, builder) -> ISuggestionProvider.suggest(BY_ID.keySet(), builder);
     private static final List<ECharacterType> VALUES = Collections.unmodifiableList(Arrays.asList(values()));
     private static final int SIZE = VALUES.size();
     private static final Random RANDOM = new Random();
+
+    private final String id;
+    private final Character character;
 
     ECharacterType(String id, Character character) {
         this.id = id;
@@ -32,18 +36,8 @@ public enum ECharacterType {
         return BY_ID.get(id);
     }
 
-    public static ECharacterType getRandomCharacterType()  {
+    public static ECharacterType getRandomCharacterType() {
         return VALUES.get(RANDOM.nextInt(SIZE));
-    }
-
-    public static class ResultTypeNameWithMatchPercentage {
-        public final String typeName;
-        public final float matchPercentage;
-
-        public ResultTypeNameWithMatchPercentage(String typeName, float matchPercentage) {
-            this.typeName = typeName;
-            this.matchPercentage = matchPercentage;
-        }
     }
 
     public static ResultTypeNameWithMatchPercentage getNearestCharacterTypeName(Character character) {
@@ -68,14 +62,32 @@ public enum ECharacterType {
                 }
                 gap += result;
             }
-            if(gap == 0) return new ResultTypeNameWithMatchPercentage(characterType.id, 100);
+            if (gap == 0) return new ResultTypeNameWithMatchPercentage(characterType.id, 100);
 
-            float gapPercentage = Math.abs((((float)gap/maximumGap)-1)*100);
-            if( gapPercentage > maximumMatchPercentage){
+            float gapPercentage = Math.abs((((float) gap / maximumGap) - 1) * 100);
+            if (gapPercentage > maximumMatchPercentage) {
                 maximumMatchPercentage = gapPercentage;
                 idCharacterType = characterType.id;
             }
         }
         return new ResultTypeNameWithMatchPercentage(idCharacterType, maximumMatchPercentage);
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public Character getCharacter() {
+        return character;
+    }
+
+    public static class ResultTypeNameWithMatchPercentage {
+        public final String typeName;
+        public final float matchPercentage;
+
+        public ResultTypeNameWithMatchPercentage(String typeName, float matchPercentage) {
+            this.typeName = typeName;
+            this.matchPercentage = matchPercentage;
+        }
     }
 }

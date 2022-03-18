@@ -24,7 +24,7 @@ public class NpcRenderer extends MobRenderer<NpcEntity, NpcModel<NpcEntity>> {
     protected void scale(NpcEntity npcEntity, MatrixStack matrixStack, float scale) {
         float f = 0.9375F;
         if (npcEntity.isBaby()) {
-            f = (float)((double)f * 0.5D);
+            f = (float) ((double) f * 0.5D);
             this.shadowRadius = 0.25F;
         } else {
             this.shadowRadius = 0.5F;

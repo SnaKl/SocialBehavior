@@ -13,8 +13,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
 public class NpcModel<T extends Entity> extends SegmentedModel<T> implements IHasHead, IHeadToggle {
-    protected ModelRenderer head;
-    protected ModelRenderer hat;
     protected final ModelRenderer hatRim;
     protected final ModelRenderer body;
     protected final ModelRenderer jacket;
@@ -22,6 +20,8 @@ public class NpcModel<T extends Entity> extends SegmentedModel<T> implements IHa
     protected final ModelRenderer leg0;
     protected final ModelRenderer leg1;
     protected final ModelRenderer nose;
+    protected ModelRenderer head;
+    protected ModelRenderer hat;
 
     public NpcModel(float p_i1163_1_) {
         this(p_i1163_1_, 64, 64);
@@ -39,7 +39,7 @@ public class NpcModel<T extends Entity> extends SegmentedModel<T> implements IHa
         this.hatRim = (new ModelRenderer(this)).setTexSize(p_i51059_2_, p_i51059_3_);
         this.hatRim.setPos(0.0F, 0.0F, 0.0F);
         this.hatRim.texOffs(30, 47).addBox(-8.0F, -8.0F, -6.0F, 16.0F, 16.0F, 1.0F, p_i51059_1_);
-        this.hatRim.xRot = (-(float)Math.PI / 2F);
+        this.hatRim.xRot = (-(float) Math.PI / 2F);
         this.hat.addChild(this.hatRim);
         this.nose = (new ModelRenderer(this)).setTexSize(p_i51059_2_, p_i51059_3_);
         this.nose.setPos(0.0F, -2.0F, 0.0F);
@@ -73,11 +73,11 @@ public class NpcModel<T extends Entity> extends SegmentedModel<T> implements IHa
     public void setupAnim(T p_225597_1_, float p_225597_2_, float p_225597_3_, float p_225597_4_, float p_225597_5_, float p_225597_6_) {
         boolean flag = false;
         if (p_225597_1_ instanceof AbstractVillagerEntity) {
-            flag = ((AbstractVillagerEntity)p_225597_1_).getUnhappyCounter() > 0;
+            flag = ((AbstractVillagerEntity) p_225597_1_).getUnhappyCounter() > 0;
         }
 
-        this.head.yRot = p_225597_5_ * ((float)Math.PI / 180F);
-        this.head.xRot = p_225597_6_ * ((float)Math.PI / 180F);
+        this.head.yRot = p_225597_5_ * ((float) Math.PI / 180F);
+        this.head.xRot = p_225597_6_ * ((float) Math.PI / 180F);
         if (flag) {
             this.head.zRot = 0.3F * MathHelper.sin(0.45F * p_225597_4_);
             this.head.xRot = 0.4F;
@@ -89,7 +89,7 @@ public class NpcModel<T extends Entity> extends SegmentedModel<T> implements IHa
         this.arms.z = -1.0F;
         this.arms.xRot = -0.75F;
         this.leg0.xRot = MathHelper.cos(p_225597_2_ * 0.6662F) * 1.4F * p_225597_3_ * 0.5F;
-        this.leg1.xRot = MathHelper.cos(p_225597_2_ * 0.6662F + (float)Math.PI) * 1.4F * p_225597_3_ * 0.5F;
+        this.leg1.xRot = MathHelper.cos(p_225597_2_ * 0.6662F + (float) Math.PI) * 1.4F * p_225597_3_ * 0.5F;
         this.leg0.yRot = 0.0F;
         this.leg1.yRot = 0.0F;
     }
