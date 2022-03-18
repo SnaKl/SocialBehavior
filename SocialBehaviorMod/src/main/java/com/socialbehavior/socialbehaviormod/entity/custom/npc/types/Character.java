@@ -14,27 +14,31 @@ public class Character {
     public byte curiosity;
 
     public Character() {
-        Random random = new Random();
-        this.courage = (byte) (random.nextInt(255) - 128);
-        this.fear = (byte) (random.nextInt(255) - 128);
-        this.intellect = (byte) (random.nextInt(255) - 128);
-        this.sensibility = (byte) (random.nextInt(255) - 128);
-        this.energy = (byte) (random.nextInt(255) - 128);
-        this.friendliness = (byte) (random.nextInt(255) - 128);
-        this.positivity = (byte) (random.nextInt(255) - 128);
-        this.altruism = (byte) (random.nextInt(255) - 128);
-        this.curiosity = (byte) (random.nextInt(255) - 128);
+        this.courage = this.randomByte();
+        this.fear = this.randomByte();
+        this.intellect = this.randomByte();
+        this.sensibility = this.randomByte();
+        this.energy = this.randomByte();
+        this.friendliness = this.randomByte();
+        this.positivity = this.randomByte();
+        this.altruism = this.randomByte();
+        this.curiosity = this.randomByte();
     }
 
     public Character(int courage, int fear, int intellect, int sensibility, int energy, int friendliness, int positivity, int altruism, int curiosity) {
-        this.courage = (byte)courage;
-        this.fear = (byte)fear;
-        this.intellect = (byte)intellect;
-        this.sensibility = (byte)sensibility;
-        this.energy = (byte)energy;
-        this.friendliness = (byte)friendliness;
-        this.positivity = (byte)positivity;
-        this.altruism = (byte)altruism;
-        this.curiosity = (byte)curiosity;
+        this.courage = (byte) courage;
+        this.fear = (byte) fear;
+        this.intellect = (byte) intellect;
+        this.sensibility = (byte) sensibility;
+        this.energy = (byte) energy;
+        this.friendliness = (byte) friendliness;
+        this.positivity = (byte) positivity;
+        this.altruism = (byte) altruism;
+        this.curiosity = (byte) curiosity;
+    }
+
+    private byte randomByte() {
+        Random random = new Random();
+        return (byte) (random.nextInt(255) - 128);
     }
 }

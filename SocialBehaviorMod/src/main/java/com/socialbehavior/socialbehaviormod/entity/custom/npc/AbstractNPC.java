@@ -11,6 +11,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 
 public abstract class AbstractNPC extends AgeableEntity {
+    private final Inventory inventory = new Inventory(8);
+
     protected AbstractNPC(EntityType<? extends AgeableEntity> entityType, World world) {
         super(entityType, world);
     }
@@ -21,8 +23,6 @@ public abstract class AbstractNPC extends AgeableEntity {
                 .add(Attributes.FOLLOW_RANGE, 48.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.4D);
     }
-
-    private final Inventory inventory = new Inventory(8);
 
     public Inventory getInventory() {
         return this.inventory;
