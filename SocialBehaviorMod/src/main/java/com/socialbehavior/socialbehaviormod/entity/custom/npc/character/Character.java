@@ -1,4 +1,4 @@
-package com.socialbehavior.socialbehaviormod.entity.custom.npc.types;
+package com.socialbehavior.socialbehaviormod.entity.custom.npc.character;
 
 import java.util.Random;
 

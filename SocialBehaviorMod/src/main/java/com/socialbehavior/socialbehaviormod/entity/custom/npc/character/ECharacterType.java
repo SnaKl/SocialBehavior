@@ -1,4 +1,4 @@
-package com.socialbehavior.socialbehaviormod.entity.custom.npc.types;
+package com.socialbehavior.socialbehaviormod.entity.custom.npc.character;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.brigadier.suggestion.SuggestionProvider;

@@ -3,23 +3,23 @@ package com.socialbehavior.socialbehaviormod.commands;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import com.socialbehavior.socialbehaviormod.entity.ModEntityTypes;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import com.socialbehavior.socialbehaviormod.SocialBehaviorMod;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.NpcEntity;
-import com.socialbehavior.socialbehaviormod.entity.custom.npc.types.ECharacterType;
+import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.ECharacterType;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.command.arguments.Vec3Argument;
-import net.minecraft.entity.ILivingEntityData;
-import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.*;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.server.ServerWorld;
 
-import javax.annotation.Nullable;
-
 public class SpawnNpcCommand {
+    private static final SimpleCommandExceptionType ERROR_FAILED = new SimpleCommandExceptionType(new TranslationTextComponent("commands.summon.failed"));
+    private static final SimpleCommandExceptionType ERROR_DUPLICATE_UUID = new SimpleCommandExceptionType(new TranslationTextComponent("commands.summon.failed.uuid"));
     public SpawnNpcCommand(CommandDispatcher<CommandSource> dispatcher) {
 
         dispatcher.register(Commands.literal("npc")
@@ -28,7 +28,7 @@ public class SpawnNpcCommand {
                                 .suggests(ECharacterType.TYPE)
                                 .executes((commandContext) -> {
                                     String character = StringArgumentType.getString(commandContext, "character");
-                                    return spawnNpc(commandContext.getSource(), character, null);
+                                    return spawnNpc(commandContext.getSource(), character, commandContext.getSource().getPosition());
                                 })
                                 .then(Commands.argument("pos", Vec3Argument.vec3()).executes((commandContext) -> {
                                             String character = StringArgumentType.getString(commandContext, "character");
@@ -37,7 +37,7 @@ public class SpawnNpcCommand {
                                 ))));
     }
 
-    private int spawnNpc(CommandSource commandSource, String character, @Nullable Vector3d position) throws CommandSyntaxException {
+    private int spawnNpc(CommandSource commandSource, String character, Vector3d position) throws CommandSyntaxException {
         ECharacterType characterType = ECharacterType.byId(character);
         if (characterType == null) {
             commandSource.sendFailure(ITextComponent.nullToEmpty("Bad character"));
@@ -45,23 +45,28 @@ public class SpawnNpcCommand {
         }
 
         ServerWorld serverworld = commandSource.getLevel();
-        if (position == null) {
-            position = commandSource.getPosition();
-        }
-        BlockPos blockpos = new BlockPos(position);
+        CompoundNBT compoundNBT = new CompoundNBT();
 
-        NpcEntity npcEntity = new NpcEntity(ModEntityTypes.NPC_TYPE, serverworld);
-        npcEntity.setCharacterType(characterType);
-        npcEntity.setPos(position.x, position.y, position.z);
-        npcEntity.finalizeSpawn(serverworld, serverworld.getCurrentDifficultyAt(blockpos), SpawnReason.COMMAND, (ILivingEntityData) null, (CompoundNBT) null);
+        compoundNBT.putString("id", SocialBehaviorMod.MOD_ID+":npc");
+        Entity entity = EntityType.loadEntityRecursive(compoundNBT, serverworld, (ent) -> {
+            ent.moveTo(position.x, position.y, position.z, ent.yRot, ent.xRot);
+            return ent;
+        });
 
-        if (!serverworld.tryAddFreshEntityWithPassengers(npcEntity)) {
-            commandSource.sendFailure(ITextComponent.nullToEmpty("FAIL spawn NPC"));
-            return 0;
+        if (entity == null) {
+            throw ERROR_FAILED.create();
         } else {
-            commandSource.sendSuccess(ITextComponent.nullToEmpty("Spawn NPC with " + character + " as character"), true);
-        }
+            if (entity instanceof NpcEntity) {
+                ((NpcEntity)entity).finalizeSpawn(serverworld, serverworld.getCurrentDifficultyAt(entity.blockPosition()), SpawnReason.COMMAND, (ILivingEntityData) null, (CompoundNBT) null);
+                ((NpcEntity)entity).setCharacterType(characterType);
+            }
 
-        return 1;
+            if (!serverworld.tryAddFreshEntityWithPassengers(entity)) {
+                throw ERROR_DUPLICATE_UUID.create();
+            } else {
+                commandSource.sendSuccess(new TranslationTextComponent("commands.summon.success", entity.getDisplayName()), true);
+                return 1;
+            }
+        }
     }
 }

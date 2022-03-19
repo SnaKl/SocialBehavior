@@ -1,14 +1,17 @@
 package com.socialbehavior.socialbehaviormod.entity.custom.npc;
 
 import com.socialbehavior.socialbehaviormod.entity.ModEntityTypes;
-import com.socialbehavior.socialbehaviormod.entity.custom.npc.types.Character;
-import com.socialbehavior.socialbehaviormod.entity.custom.npc.types.ECharacterType;
+import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.Character;
+import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.ECharacterType;
 import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.goal.SwimGoal;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
@@ -17,12 +20,45 @@ import net.minecraft.world.server.ServerWorld;
 import javax.annotation.Nullable;
 
 public class NpcEntity extends AbstractNPC {
+    private static final DataParameter<String> CHARACTER_NAME = EntityDataManager.defineId(NpcEntity.class, DataSerializers.STRING);
     private ECharacterType characterType;
 
     public NpcEntity(EntityType<? extends AgeableEntity> entityType, World world) {
         super(entityType, world);
-        ECharacterType.ResultTypeNameWithMatchPercentage result = ECharacterType.getNearestCharacterTypeName(new Character());
-        characterType = ECharacterType.byId(result.typeName);
+        this.setCharacterName(this.getCharacterName());
+    }
+
+    protected void defineSynchedData() {
+        super.defineSynchedData();
+        this.getEntityData().define(CHARACTER_NAME, "");
+    }
+
+    public void onSyncedDataUpdated(DataParameter<?> dataParameter) {
+        super.onSyncedDataUpdated(dataParameter);
+        if (CHARACTER_NAME.equals(dataParameter)) {
+            ECharacterType characterType = ECharacterType.byId(this.getEntityData().get(CHARACTER_NAME));
+            if (characterType != null) {
+                this.setCharacterType(characterType);
+            }
+        }
+    }
+
+    public String getCharacterName() {
+        return this.getEntityData().get(CHARACTER_NAME);
+    }
+
+    public void setCharacterName(String characterName) {
+        this.getEntityData().set(CHARACTER_NAME, characterName);
+    }
+
+    public void readAdditionalSaveData(CompoundNBT compoundNBT) {
+        super.readAdditionalSaveData(compoundNBT);
+        this.setCharacterName(compoundNBT.getString("CharacterName"));
+    }
+
+    public void addAdditionalSaveData(CompoundNBT compoundNBT) {
+        super.addAdditionalSaveData(compoundNBT);
+        compoundNBT.putString("CharacterName", this.getEntityData().get(CHARACTER_NAME));
     }
 
     @Nullable
@@ -33,18 +69,11 @@ public class NpcEntity extends AbstractNPC {
 
     @Nullable
     public ILivingEntityData finalizeSpawn(IServerWorld serverWorld, DifficultyInstance difficultyInstance, SpawnReason spawnReason, @Nullable ILivingEntityData livingEntityData, @Nullable CompoundNBT compoundNBT) {
-        /*
-        //exemple horse.finalizeSpawn
-        CoatColors coatcolors;
-        if (livingEntityData instanceof HorseEntity.HorseData) {
-            coatcolors = ((HorseEntity.HorseData)livingEntityData).variant;
-        } else {
-            coatcolors = Util.getRandom(CoatColors.values(), this.random);
-            livingEntityData = new HorseEntity.HorseData(coatcolors);
+        ECharacterType.ResultTypeNameWithMatchPercentage result = ECharacterType.getNearestCharacterTypeName(new Character());
+        characterType = ECharacterType.byId(result.typeName);
+        if (characterType != null) {
+            this.setCharacterType(characterType);
         }
-        this.setVariantAndMarkings(coatcolors, Util.getRandom(CoatTypes.values(), this.random));
-         */
-
         return super.finalizeSpawn(serverWorld, difficultyInstance, spawnReason, livingEntityData, compoundNBT);
     }
 
@@ -60,5 +89,7 @@ public class NpcEntity extends AbstractNPC {
 
     public void setCharacterType(ECharacterType characterType) {
         this.characterType = characterType;
+        this.setCharacterName(characterType.getId());
     }
+
 }
