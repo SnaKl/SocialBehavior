@@ -20,15 +20,15 @@ public class ModEvents {
     }
 
     @SubscribeEvent
-    public static void onNpcHit(AttackEntityEvent event){
+    public static void onNpcHit(AttackEntityEvent event) {
         Entity entity = event.getTarget();
         SocialBehaviorMod.LOGGER.info(entity.toString());
-        if(entity instanceof NpcEntity){
+        if (entity instanceof NpcEntity) {
             NpcEntity npcEntity = (NpcEntity) entity;
             ECharacterType characterType = npcEntity.getCharacterType();
-            if(characterType != null)
+            if (characterType != null)
                 SocialBehaviorMod.LOGGER.info(characterType.getId().toString());
-            else{
+            else {
                 SocialBehaviorMod.LOGGER.info("NULL");
             }
         }
