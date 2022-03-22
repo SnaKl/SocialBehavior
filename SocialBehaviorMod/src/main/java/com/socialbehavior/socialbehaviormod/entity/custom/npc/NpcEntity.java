@@ -3,28 +3,36 @@ package com.socialbehavior.socialbehaviormod.entity.custom.npc;
 import com.socialbehavior.socialbehaviormod.entity.ModEntityTypes;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.Character;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.ECharacterType;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.goal.SwimGoal;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
+import net.minecraft.util.ActionResultType;
+import net.minecraft.util.Hand;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
+import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nullable;
 
 public class NpcEntity extends AbstractNPC {
     private static final DataParameter<String> CHARACTER_NAME = EntityDataManager.defineId(NpcEntity.class, DataSerializers.STRING);
     private ECharacterType characterType;
+    private Boolean isInteract;
 
     public NpcEntity(EntityType<? extends AgeableEntity> entityType, World world) {
         super(entityType, world);
+        this.isInteract = false;
         this.setCharacterName(this.getCharacterName());
     }
 
@@ -92,4 +100,17 @@ public class NpcEntity extends AbstractNPC {
         this.setCharacterName(characterType.getId());
     }
 
+    @Override
+    protected ActionResultType mobInteract(PlayerEntity playerEntity, Hand hand) {
+        Screen screen = Minecraft.getInstance().screen;
+        if (screen == null) {
+            this.isInteract = false;
+        }
+        if (hand == Hand.MAIN_HAND && !isInteract) {
+            if (this.getLevel().isClientSide()) {
+                MinecraftForge.EVENT_BUS.post(new OpenInfoNpcEvent(playerEntity, this));
+            }
+        }
+        return super.mobInteract(playerEntity, hand);
+    }
 }
