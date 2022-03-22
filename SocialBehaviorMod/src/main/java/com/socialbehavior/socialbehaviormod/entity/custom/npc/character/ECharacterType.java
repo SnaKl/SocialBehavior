@@ -13,7 +13,14 @@ import java.util.stream.Stream;
 
 public enum ECharacterType {
     BRAVE("brave", new Character(127, -100, 0, -10, 40, 60, 90, 120, 100)),
-    FEARFUL("fearful", new Character(-128, 100, 40, 80, 80, 20, -30, -60, 0));
+    FEARFUL("fearful", new Character(-128, 100, 40, 80, 80, 20, -30, -60, 0)),
+    WISE("wise", new Character(40, -40, 127, 100, -50, 80, 120, 100, 100)),
+    DYNAMIC("dynamic", new Character(80, -40, 0, 127, 80, 80, -30, -50, 20)),
+    THOUGHTFUL("thoughtful", new Character(90, -20, 80, 127, 20, 100, 50, 120, -80)),
+    DECEITFUL("deceitful", new Character(-100, 80, 70, -90, 30, -70, 90, -120, 75)),
+    LEADER("leader", new Character(100, -90, 100, -80, 100, 70, 120, -50, -90)),
+    SELFISH("selfish", new Character(-30, 30, 70, -80, 50, -80, 70, -120, 30)),
+    LAZY("lazy", new Character(-60, 30, 24, 53, -127, 70, 0, -30, 90));
 
     private static final Map<String, ECharacterType> BY_ID = Stream.of(values()).collect(ImmutableMap.toImmutableMap((character) -> {
         return character.id;
