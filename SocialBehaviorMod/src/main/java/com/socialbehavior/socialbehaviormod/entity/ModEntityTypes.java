@@ -22,7 +22,7 @@ public class ModEntityTypes {
                     .build(new ResourceLocation(SocialBehaviorMod.MOD_ID, "hog").toString()));
 
     public static final EntityType<NpcEntity> NPC_TYPE = EntityType.Builder.of(NpcEntity::new, EntityClassification.CREATURE)
-            .sized(0.9F, 1.4F)
+            .sized(0.6F, 1.98F)
             .build(new ResourceLocation("textures/entity/villager/villager.png").toString());
     public static final RegistryObject<EntityType<NpcEntity>> NPC = ENTITY_TYPES.register("npc", () -> NPC_TYPE);
 
