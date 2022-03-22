@@ -1,5 +1,8 @@
 package com.socialbehavior.socialbehaviormod.entity.custom.npc.character;
 
+import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class Character {
@@ -26,19 +29,42 @@ public class Character {
     }
 
     public Character(int courage, int fear, int intellect, int sensibility, int energy, int friendliness, int positivity, int altruism, int curiosity) {
-        this.courage = (byte) courage;
-        this.fear = (byte) fear;
-        this.intellect = (byte) intellect;
-        this.sensibility = (byte) sensibility;
-        this.energy = (byte) energy;
-        this.friendliness = (byte) friendliness;
-        this.positivity = (byte) positivity;
-        this.altruism = (byte) altruism;
-        this.curiosity = (byte) curiosity;
+        this.courage = unsignedIntToByte(courage);
+        this.fear = unsignedIntToByte(fear);
+        this.intellect = unsignedIntToByte(intellect);
+        this.sensibility = unsignedIntToByte(sensibility);
+        this.energy = unsignedIntToByte(energy);
+        this.friendliness = unsignedIntToByte(friendliness);
+        this.positivity = unsignedIntToByte(positivity);
+        this.altruism = unsignedIntToByte(altruism);
+        this.curiosity = unsignedIntToByte(curiosity);
+    }
+
+    private byte unsignedIntToByte(int value) {
+        return (byte) (value - 128);
+    }
+
+    private int byteToUnsignedInt(byte value) {
+        return value + 128;
     }
 
     private byte randomByte() {
         Random random = new Random();
         return (byte) (random.nextInt(255) - 128);
+    }
+
+    public Map<String, Integer> getCharacterMap() {
+        Field[] fields = this.getClass().getDeclaredFields();
+        Map<String, Integer> ret = new HashMap<>();
+        for (Field field : fields) {
+            String attributeName = field.getName();
+            try {
+                byte valByte = field.getByte(this);
+                int valInt = byteToUnsignedInt(valByte);
+                ret.put(attributeName, valInt);
+            } catch (Exception ignored) {
+            }
+        }
+        return ret;
     }
 }
