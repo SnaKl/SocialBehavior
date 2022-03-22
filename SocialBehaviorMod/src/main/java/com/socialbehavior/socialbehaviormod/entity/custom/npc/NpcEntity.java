@@ -103,8 +103,10 @@ public class NpcEntity extends AbstractNPC {
     @Override
     protected ActionResultType mobInteract(PlayerEntity playerEntity, Hand hand) {
         Screen screen = Minecraft.getInstance().screen;
-        if (hand == Hand.MAIN_HAND && (!isInteract || screen == null)) {
-            this.isInteract = true;
+        if (screen == null) {
+            this.isInteract = false;
+        }
+        if (hand == Hand.MAIN_HAND && !isInteract) {
             if (this.getLevel().isClientSide()) {
                 MinecraftForge.EVENT_BUS.post(new OpenInfoNpcEvent(playerEntity, this));
             }
