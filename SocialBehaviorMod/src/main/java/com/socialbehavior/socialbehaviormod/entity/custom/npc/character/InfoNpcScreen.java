@@ -10,8 +10,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 
 import java.util.Map;
 
-//public abstract class AbstractFurnaceScreen<T extends AbstractFurnaceContainer> extends ContainerScreen<T> implements IRecipeShownListener
-//public class DeathScreen extends Screen
 @OnlyIn(Dist.CLIENT)
 public class InfoNpcScreen extends Screen {
     private final NpcEntity npcEntity;
@@ -45,7 +43,8 @@ public class InfoNpcScreen extends Screen {
         actualYPos += lineHeight;
 
         for (Map.Entry<String, Integer> entry : this.charAttributesMap.entrySet()) {
-            String text = entry.getKey() + " : " + entry.getValue();
+            int value = (int) (((float) entry.getValue() / 255.0) * 100.0);
+            String text = entry.getKey() + " : " + value + "/100";
             int textWidth = this.minecraft.font.width(text);
             int textXPos = this.width / 2 - textWidth / 2;
             drawString(pMatrixStack, this.font, text, textXPos, actualScrollPos + lineHeight + actualYPos, 0xFFFFFF);
