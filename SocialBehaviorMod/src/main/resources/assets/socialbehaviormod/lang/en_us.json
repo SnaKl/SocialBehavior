@@ -1,9 +1,9 @@
 {
-  "itemGroup.SocialBehaviorItemGroup" : "Social Behavior",
+  "itemGroup.SocialBehaviorModItemGroup" : "Social Behavior",
 
-  "item.socialbehaviormod.silver_ingot_item" : "Silver Ingot",
+  "item.socialbehaviormod.silver_ingot" : "Silver Ingot",
 
-  "block.socialbehaviormod.silver_ore_block" : "Silver Ore",
+  "block.socialbehaviormod.silver_ore" : "Silver Ore",
 
   "entity.socialbehaviormod.hog" : "Hog"
 }
