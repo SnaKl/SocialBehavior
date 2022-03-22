@@ -12,15 +12,15 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 public enum ECharacterType {
-    BRAVE("brave", new Character(127, -100, 0, -10, 40, 60, 90, 120, 100)),
-    FEARFUL("fearful", new Character(-128, 100, 40, 80, 80, 20, -30, -60, 0)),
-    WISE("wise", new Character(40, -40, 127, 100, -50, 80, 120, 100, 100)),
-    DYNAMIC("dynamic", new Character(80, -40, 0, 127, 80, 80, -30, -50, 20)),
-    THOUGHTFUL("thoughtful", new Character(90, -20, 80, 127, 20, 100, 50, 120, -80)),
-    DECEITFUL("deceitful", new Character(-100, 80, 70, -90, 30, -70, 90, -120, 75)),
-    LEADER("leader", new Character(100, -90, 100, -80, 100, 70, 120, -50, -90)),
-    SELFISH("selfish", new Character(-30, 30, 70, -80, 50, -80, 70, -120, 30)),
-    LAZY("lazy", new Character(-60, 30, 24, 53, -127, 70, 0, -30, 90));
+    BRAVE("brave", new Character(255, 127, 127, 100, 167, 187, 217, 250, 220)),
+    FEARFUL("fearful", new Character(0, 255, 127, 220, 200, 147, 100, 20, 0)),
+    WISE("wise", new Character(130, 110, 255, 100, 77, 207, 120, 100, 100)),
+    DYNAMIC("dynamic", new Character(207, -40, 127, 255, 207, 207, 140, 200, 140)),
+    THOUGHTFUL("thoughtful", new Character(210, 100, 207, 255, 130, 100, 190, 255, 20)),
+    DECEITFUL("deceitful", new Character(10, 207, 155, 90, 140, 80, 127, 40, 130)),
+    LEADER("leader", new Character(240, 100, 100, 100, 100, 70, 120, 77, 100)),
+    SELFISH("selfish", new Character(100, 130, 140, 100, 140, 125, 150, 110, 130)),
+    LAZY("lazy", new Character(40, 127, 24, 140, 127, 200, 127, 120, 1260));
 
     private static final Map<String, ECharacterType> BY_ID = Stream.of(values()).collect(ImmutableMap.toImmutableMap((character) -> {
         return character.id;
