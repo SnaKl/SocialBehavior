@@ -1,5 +1,6 @@
 package com.socialbehavior.socialbehaviormod;
 
+import com.github.javafaker.Faker;
 import com.socialbehavior.socialbehaviormod.block.ModBlocks;
 import com.socialbehavior.socialbehaviormod.entity.ModEntityTypes;
 import com.socialbehavior.socialbehaviormod.item.ModItems;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 @Mod(SocialBehaviorMod.MOD_ID)
 public class SocialBehaviorMod {
     public static final String MOD_ID = "socialbehaviormod";
+    public static final Faker FAKER = new Faker();
 
     // Directly reference a log4j logger.
     public static final Logger LOGGER = LogManager.getLogger();

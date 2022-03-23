@@ -1,6 +1,5 @@
 package com.socialbehavior.socialbehaviormod.entity.custom.npc;
 
-import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.InfoNpcScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraftforge.eventbus.api.Event;
