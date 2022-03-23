@@ -1,7 +1,6 @@
-package com.socialbehavior.socialbehaviormod.entity.custom.npc.character;
+package com.socialbehavior.socialbehaviormod.entity.custom.npc;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.socialbehavior.socialbehaviormod.entity.custom.npc.NpcEntity;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -35,19 +34,30 @@ public class InfoNpcScreen extends Screen {
     public void render(MatrixStack pMatrixStack, int pMouseX, int pMouseY, float pPartialTicks) {
         renderBackground(pMatrixStack);
         int actualYPos = 0;
-        int lineHeight = this.minecraft.font.lineHeight;
-        String characterName = "Character : " + npcEntity.getCharacterName();
-        int characterNameWidth = this.minecraft.font.width(characterName);
-        int characterNameXPos = this.width / 2 - characterNameWidth / 2;
-        drawString(pMatrixStack, this.font, characterName, characterNameXPos, actualScrollPos + lineHeight + actualYPos, 0xFFFFFF);
-        actualYPos += lineHeight;
+        int lineHeight = this.font.lineHeight;
 
+        String npcFullName = npcEntity.getFullName();
+        int npcFullNameWidth = this.font.width(npcFullName);
+        int npcFullNameXPos = this.width / 2 - npcFullNameWidth / 2;
+        drawString(pMatrixStack, this.font, npcFullName, npcFullNameXPos, this.actualScrollPos + lineHeight + actualYPos, 0xFFFFFF);
+        actualYPos += lineHeight + 10;
+
+        String characterTypeName = "Character : " + npcEntity.getCharacterTypeData();
+        int characterNameWidth = this.font.width(characterTypeName);
+        int characterNameXPos = this.width / 2 - characterNameWidth / 2;
+        drawString(pMatrixStack, this.font, characterTypeName, characterNameXPos, this.actualScrollPos + lineHeight + actualYPos, 0xFFFFFF);
+        actualYPos += lineHeight + 10;
+
+        drawCharacterStats(pMatrixStack, actualYPos, lineHeight);
+    }
+
+    private void drawCharacterStats(MatrixStack pMatrixStack, int actualYPos, int lineHeight) {
         for (Map.Entry<String, Integer> entry : this.charAttributesMap.entrySet()) {
             int value = (int) (((float) entry.getValue() / 255.0) * 100.0);
             String text = entry.getKey() + " : " + value + "/100";
-            int textWidth = this.minecraft.font.width(text);
+            int textWidth = this.font.width(text);
             int textXPos = this.width / 2 - textWidth / 2;
-            drawString(pMatrixStack, this.font, text, textXPos, actualScrollPos + lineHeight + actualYPos, 0xFFFFFF);
+            drawString(pMatrixStack, this.font, text, textXPos, this.actualScrollPos + lineHeight + actualYPos, 0xFFFFFF);
             actualYPos += lineHeight;
         }
     }
