@@ -36,13 +36,13 @@ public class InfoNpcScreen extends Screen {
         int actualYPos = 0;
         int lineHeight = this.font.lineHeight;
 
-        String npcFullName = npcEntity.getFullName();
+        String npcFullName = npcEntity.getNpcData().getFullName();
         int npcFullNameWidth = this.font.width(npcFullName);
         int npcFullNameXPos = this.width / 2 - npcFullNameWidth / 2;
         drawString(pMatrixStack, this.font, npcFullName, npcFullNameXPos, this.actualScrollPos + lineHeight + actualYPos, 0xFFFFFF);
         actualYPos += lineHeight + 10;
 
-        String characterTypeName = "Character : " + npcEntity.getCharacterTypeData();
+        String characterTypeName = "Character : " + npcEntity.getCharacterType().getId();
         int characterNameWidth = this.font.width(characterTypeName);
         int characterNameXPos = this.width / 2 - characterNameWidth / 2;
         drawString(pMatrixStack, this.font, characterTypeName, characterNameXPos, this.actualScrollPos + lineHeight + actualYPos, 0xFFFFFF);

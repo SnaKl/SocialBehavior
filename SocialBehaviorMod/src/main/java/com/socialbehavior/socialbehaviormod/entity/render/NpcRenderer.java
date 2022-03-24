@@ -1,7 +1,6 @@
 package com.socialbehavior.socialbehaviormod.entity.render;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.socialbehavior.socialbehaviormod.SocialBehaviorMod;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.NpcEntity;
 import com.socialbehavior.socialbehaviormod.entity.model.NpcModel;
 import net.minecraft.client.Minecraft;
@@ -46,7 +45,7 @@ public class NpcRenderer extends MobRenderer<NpcEntity, NpcModel<NpcEntity>> {
     }
 
     public void drawName(NpcEntity npcEntity, MatrixStack matrixStack, IRenderTypeBuffer pBuffer, int pPackedLight) {
-        String pDisplayName = npcEntity.getFullName();
+        String pDisplayName = npcEntity.getNpcData().getFullName();
         double d0 = this.entityRenderDispatcher.distanceToSqr(npcEntity);
         if (net.minecraftforge.client.ForgeHooksClient.isNameplateInRenderDistance(npcEntity, d0)) {
             boolean flag = !npcEntity.isDiscrete();
