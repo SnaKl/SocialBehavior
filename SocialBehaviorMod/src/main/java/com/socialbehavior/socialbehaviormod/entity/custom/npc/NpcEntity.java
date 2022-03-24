@@ -1,9 +1,13 @@
 package com.socialbehavior.socialbehaviormod.entity.custom.npc;
 
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
 import com.socialbehavior.socialbehaviormod.SocialBehaviorMod;
 import com.socialbehavior.socialbehaviormod.entity.ModEntityTypes;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.Character;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.ECharacterType;
+import com.socialbehavior.socialbehaviormod.entity.custom.npc.data.NpcData;
+import com.socialbehavior.socialbehaviormod.utils.DataSerializers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.AgeableEntity;
@@ -11,10 +15,11 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.goal.SwimGoal;
+import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
@@ -27,55 +32,52 @@ import net.minecraftforge.common.MinecraftForge;
 import javax.annotation.Nullable;
 
 public class NpcEntity extends AbstractNPC {
-    private static final DataParameter<String> NPC_CHARACTER_TYPE = EntityDataManager.defineId(NpcEntity.class, DataSerializers.STRING);
-    private static final DataParameter<String> NPC_NAME = EntityDataManager.defineId(NpcEntity.class, DataSerializers.STRING);
+    //private static final DataParameter<String> NPC_CHARACTER_TYPE = EntityDataManager.defineId(NpcEntity.class, DataSerializers.STRING);
+    //private static final DataParameter<String> NPC_NAME = EntityDataManager.defineId(NpcEntity.class, DataSerializers.STRING);
+    private static final DataParameter<NpcData> DATA_NPC_DATA = EntityDataManager.defineId(VillagerEntity.class, DataSerializers.NPC_DATA);
     private ECharacterType characterType;
     private Boolean isInteract;
-    private String firstName;
-    private String lastName;
 
     public NpcEntity(EntityType<? extends AgeableEntity> entityType, World world) {
         super(entityType, world);
         this.isInteract = false;
-        this.setCharacterTypeData(this.getCharacterTypeData());
-        this.setFullName(this.getFullNameData());
+        this.setNpcData(this.getNpcData().setCharacterNameType("").setFullName(""));
     }
 
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.getEntityData().define(NPC_CHARACTER_TYPE, "");
-        this.getEntityData().define(NPC_NAME, "");
+        this.entityData.define(DATA_NPC_DATA, new NpcData("brave", "firstname", "lastname"));
     }
 
-    public void onSyncedDataUpdated(DataParameter<?> dataParameter) {
-        super.onSyncedDataUpdated(dataParameter);
-        if (NPC_CHARACTER_TYPE.equals(dataParameter)) {
-            ECharacterType characterType = ECharacterType.byId(this.getEntityData().get(NPC_CHARACTER_TYPE));
-            if (characterType != null) {
-                this.setCharacterType(characterType);
-            }
-        }
-        if (NPC_NAME.equals(dataParameter)) {
-            String fullName = this.getEntityData().get(NPC_NAME);
-            if (!fullName.isEmpty()) {
-                this.setFullName(fullName);
-            } else if (fullName.equals("")) {
-                this.setFirstName("");
-                this.setLastName("");
-            }
+    public NpcData getNpcData() {
+        return this.entityData.get(DATA_NPC_DATA);
+    }
+
+    public void setNpcData(NpcData npcData) {
+        this.entityData.set(DATA_NPC_DATA, npcData);
+    }
+
+    public void onSyncedDataUpdated(DataParameter<?> pKey) {
+        super.onSyncedDataUpdated(pKey);
+        if (DATA_NPC_DATA.equals(pKey)) {
+            this.setNpcData(this.getEntityData().get(DATA_NPC_DATA));
         }
     }
 
     public void readAdditionalSaveData(CompoundNBT compoundNBT) {
         super.readAdditionalSaveData(compoundNBT);
-        this.setCharacterTypeData(compoundNBT.getString("NpcCharacterType"));
-        this.setFullName(compoundNBT.getString("NpcName"));
+
+        if (compoundNBT.contains("NpcData", 10)) {
+            DataResult<NpcData> dataResult = NpcData.CODEC.parse(new Dynamic<>(NBTDynamicOps.INSTANCE, compoundNBT.get("NpcData")));
+            dataResult.resultOrPartial(LOGGER::error).ifPresent(this::setNpcData);
+        }
     }
 
     public void addAdditionalSaveData(CompoundNBT compoundNBT) {
         super.addAdditionalSaveData(compoundNBT);
-        compoundNBT.putString("NpcCharacterType", this.getEntityData().get(NPC_CHARACTER_TYPE));
-        compoundNBT.putString("NpcName", this.getEntityData().get(NPC_NAME));
+        NpcData.CODEC.encodeStart(NBTDynamicOps.INSTANCE, this.getNpcData()).resultOrPartial(LOGGER::error).ifPresent((villagerData) -> {
+            compoundNBT.put("NpcData", villagerData);
+        });
     }
 
     @Nullable
@@ -89,11 +91,12 @@ public class NpcEntity extends AbstractNPC {
         ECharacterType.ResultTypeNameWithMatchPercentage result = ECharacterType.getNearestCharacterTypeName(new Character());
         characterType = ECharacterType.byId(result.typeName);
         if (characterType != null) {
-            this.setCharacterType(characterType);
+            this.setNpcData(this.getNpcData().setCharacterNameType(characterType.getId()));
         }
-        String lastName = SocialBehaviorMod.FAKER.name().lastName();
+
         String firstName = SocialBehaviorMod.FAKER.name().firstName();
-        this.setFullName(firstName + " " + lastName);
+        String lastName = SocialBehaviorMod.FAKER.name().lastName();
+        this.setNpcData(this.getNpcData().setFullName(firstName + " " + lastName));
 
         return super.finalizeSpawn(serverWorld, difficultyInstance, spawnReason, livingEntityData, compoundNBT);
     }
@@ -118,63 +121,16 @@ public class NpcEntity extends AbstractNPC {
         return super.mobInteract(playerEntity, hand);
     }
 
-    public String getCharacterTypeData() {
-        return this.getEntityData().get(NPC_CHARACTER_TYPE);
-    }
-
-    public void setCharacterTypeData(String characterName) {
-        this.getEntityData().set(NPC_CHARACTER_TYPE, characterName);
-    }
-
-    public String getFullNameData() {
-        return this.getEntityData().get(NPC_NAME);
-    }
-
-    public void setFullNameData(String fullName) {
-        this.getEntityData().set(NPC_NAME, fullName);
-    }
-
     public ECharacterType getCharacterType() {
-        return characterType;
+        return ECharacterType.byId(this.getNpcData().getCharacterNameType());
     }
 
     public void setCharacterType(ECharacterType characterType) {
         this.characterType = characterType;
-        this.setCharacterTypeData(characterType.getId());
+        this.setNpcData(this.getNpcData().setCharacterNameType(characterType.getId()));
     }
 
     public Boolean getInteract() {
         return this.isInteract;
-    }
-
-    public String getFirstName() {
-        return this.firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-        this.setFullNameData(this.getFullName());
-    }
-
-    public String getLastName() {
-        return this.lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-        this.setFullNameData(this.getFullName());
-    }
-
-    public String getFullName() {
-        return this.getFirstName() + " " + this.getLastName();
-    }
-
-    public void setFullName(String fullName) {
-        String[] name = fullName.split(" ");
-        if (name.length == 2) {
-            this.setFirstName(name[0]);
-            this.setLastName(name[1]);
-            this.setFullNameData(this.getFullName());
-        }
     }
 }
