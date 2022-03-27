@@ -1,5 +1,6 @@
 package com.socialbehavior.socialbehaviormod.entity.custom.npc;
 
+import com.google.common.collect.Maps;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.socialbehavior.socialbehaviormod.SocialBehaviorMod;
@@ -30,23 +31,34 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nullable;
+import java.util.Map;
+import java.util.UUID;
 
 public class NpcEntity extends AbstractNPC {
-    //private static final DataParameter<String> NPC_CHARACTER_TYPE = EntityDataManager.defineId(NpcEntity.class, DataSerializers.STRING);
-    //private static final DataParameter<String> NPC_NAME = EntityDataManager.defineId(NpcEntity.class, DataSerializers.STRING);
     private static final DataParameter<NpcData> DATA_NPC_DATA = EntityDataManager.defineId(VillagerEntity.class, DataSerializers.NPC_DATA);
+    @Nullable
+    public static Map<String, NpcEntity> NPC_MAP = null;
     private ECharacterType characterType;
     private Boolean isInteract;
 
     public NpcEntity(EntityType<? extends AgeableEntity> entityType, World world) {
         super(entityType, world);
         this.isInteract = false;
-        this.setNpcData(this.getNpcData().setCharacterNameType("").setFullName(""));
+        this.setNpcData(this.getNpcData());
+        if (!world.isClientSide) {
+            if (NPC_MAP == null) {
+                NPC_MAP = Maps.newHashMap();
+            }
+            NPC_MAP.putIfAbsent(this.getStringUUID(), this);
+
+            System.out.println("NPC_MAP size: " + NPC_MAP.size());
+            System.out.println("UUID: " + this.getStringUUID());
+        }
     }
 
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(DATA_NPC_DATA, new NpcData("brave", "firstname", "lastname"));
+        this.entityData.define(DATA_NPC_DATA, new NpcData("character", "uuid", "firstname", "lastname"));
     }
 
     public NpcData getNpcData() {
@@ -98,6 +110,8 @@ public class NpcEntity extends AbstractNPC {
         String lastName = SocialBehaviorMod.FAKER.name().lastName();
         this.setNpcData(this.getNpcData().setFullName(firstName + " " + lastName));
 
+        this.setNpcData(this.getNpcData().setUUID(this.getStringUUID()));
+
         return super.finalizeSpawn(serverWorld, difficultyInstance, spawnReason, livingEntityData, compoundNBT);
     }
 
@@ -132,5 +146,12 @@ public class NpcEntity extends AbstractNPC {
 
     public Boolean getInteract() {
         return this.isInteract;
+    }
+
+    /**
+     * Makes the entity despawn if requirements are reached
+     */
+    @Override
+    public void checkDespawn() {
     }
 }
