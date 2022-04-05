@@ -15,7 +15,7 @@ public enum ECharacterType {
     BRAVE("brave", new Character(255, 127, 127, 100, 167, 187, 217, 250, 220)),
     FEARFUL("fearful", new Character(0, 255, 127, 220, 200, 147, 100, 20, 0)),
     WISE("wise", new Character(130, 110, 255, 100, 77, 207, 120, 100, 100)),
-    DYNAMIC("dynamic", new Character(207, -40, 127, 255, 207, 207, 140, 200, 140)),
+    DYNAMIC("dynamic", new Character(207, 40, 127, 255, 207, 207, 140, 200, 140)),
     THOUGHTFUL("thoughtful", new Character(210, 100, 207, 255, 130, 100, 190, 255, 20)),
     DECEITFUL("deceitful", new Character(10, 207, 155, 90, 140, 80, 127, 40, 130)),
     LEADER("leader", new Character(240, 100, 100, 100, 100, 70, 120, 77, 100)),
@@ -57,11 +57,13 @@ public enum ECharacterType {
             int gap = 0;
             for (Field field : fields) {
                 String name = field.getName();
+                if (name.equals("CODEC")) continue;
+
                 int value1 = 0;
                 int value2 = 0;
                 int result = 0;
                 try {
-                    value1 = field.getInt(characterType.character);
+                    value1 = field.getInt(characterType.getCharacter());
                     value2 = field.getInt(character);
                     result = Math.abs(value2 - value1);
                 } catch (IllegalAccessException e) {

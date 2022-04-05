@@ -1,8 +1,10 @@
 package com.socialbehavior.socialbehaviormod.entity.custom.npc;
 
 import com.google.common.collect.Maps;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.socialbehavior.socialbehaviormod.SocialBehaviorMod;
 import com.socialbehavior.socialbehaviormod.entity.ModEntityTypes;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.Character;
@@ -34,7 +36,7 @@ import javax.annotation.Nullable;
 import java.util.Map;
 
 public class NpcEntity extends AbstractNPC {
-    private static final DataParameter<NpcData> DATA_NPC_DATA = EntityDataManager.defineId(VillagerEntity.class, DataSerializers.NPC_DATA);
+    private static final DataParameter<NpcData> DATA_NPC_DATA = EntityDataManager.defineId(NpcEntity.class, DataSerializers.NPC_DATA);
     @Nullable
     public static Map<String, NpcEntity> NPC_MAP = null;
     private Boolean isInteract;
@@ -48,9 +50,6 @@ public class NpcEntity extends AbstractNPC {
                 NPC_MAP = Maps.newHashMap();
             }
             NPC_MAP.putIfAbsent(this.getStringUUID(), this);
-
-            System.out.println("NPC_MAP size: " + NPC_MAP.size());
-            System.out.println("UUID: " + this.getStringUUID());
         }
     }
 
