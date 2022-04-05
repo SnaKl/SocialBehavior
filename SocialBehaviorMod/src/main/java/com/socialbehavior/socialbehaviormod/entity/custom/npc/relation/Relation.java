@@ -75,6 +75,7 @@ public class Relation {
         }
         String[] allRelationArray = allRelations.split(";");
         for (int i = 0; i < allRelationArray.length; i++) {
+            if (allRelationArray[i].length() == 0) continue;
             String[] relationArray = allRelationArray[i].split(",");
             for (String s : relationArray) {
                 allRelationMap.get(ERelation.values()[i]).add(UUID.fromString(s));
