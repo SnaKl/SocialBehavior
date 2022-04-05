@@ -14,7 +14,7 @@ public class NpcData {
                 }), Codec.STRING.fieldOf("uuid").orElseGet(() -> {
                     return UUID.randomUUID().toString();
                 }).forGetter((npcData) -> {
-                    return npcData.uuid;
+                    return npcData.uuid.toString();
                 }), Codec.STRING.fieldOf("firstName").orElseGet(() -> {
                     return SocialBehaviorMod.FAKER.name().firstName();
                 }).forGetter((npcData) -> {
@@ -29,9 +29,9 @@ public class NpcData {
     private final ECharacterType characterType;
     private final String firstName;
     private final String lastName;
-    private final String uuid;
+    private final UUID uuid;
 
-    public NpcData(ECharacterType characterType, String uuid, String firstName, String lastName) {
+    public NpcData(ECharacterType characterType, UUID uuid, String firstName, String lastName) {
         this.characterType = characterType;
         this.uuid = uuid;
         this.firstName = firstName;
@@ -40,7 +40,7 @@ public class NpcData {
 
     public NpcData(Integer characterType, String uuid, String firstName, String lastName) {
         this.characterType = ECharacterType.values()[characterType];
-        this.uuid = uuid;
+        this.uuid = UUID.fromString(uuid);
         this.firstName = firstName;
         this.lastName = lastName;
     }
@@ -53,11 +53,11 @@ public class NpcData {
         return new NpcData(characterType, this.uuid, this.firstName, this.lastName);
     }
 
-    public String getUIID() {
+    public UUID getUIID() {
         return this.uuid;
     }
 
-    public NpcData setUUID(String uuid) {
+    public NpcData setUUID(UUID uuid) {
         return new NpcData(this.characterType, uuid, this.firstName, this.lastName);
     }
 

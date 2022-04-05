@@ -56,7 +56,7 @@ public class NpcEntity extends AbstractNPC {
 
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(DATA_NPC_DATA, new NpcData(ECharacterType.BRAVE, "uuid", "firstname", "lastname"));
+        this.entityData.define(DATA_NPC_DATA, new NpcData(ECharacterType.BRAVE, this.getUUID(), "firstname", "lastname"));
     }
 
     public NpcData getNpcData() {
@@ -109,7 +109,7 @@ public class NpcEntity extends AbstractNPC {
         String lastName = SocialBehaviorMod.FAKER.name().lastName();
         this.setNpcData(this.getNpcData().setFullName(firstName + " " + lastName));
 
-        this.setNpcData(this.getNpcData().setUUID(this.getStringUUID()));
+        this.setNpcData(this.getNpcData().setUUID(this.getUUID()));
 
         return super.finalizeSpawn(serverWorld, difficultyInstance, spawnReason, livingEntityData, compoundNBT);
     }
