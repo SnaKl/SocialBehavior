@@ -19,7 +19,7 @@ public class InfoNpcScreen extends Screen {
     public InfoNpcScreen(PlayerEntity playerEntity, NpcEntity npcEntity) {
         super(new TranslationTextComponent("NPC infos"));
         this.npcEntity = npcEntity;
-        this.charAttributesMap = npcEntity.getCharacterType().getCharacter().getCharacterMap();
+        this.charAttributesMap = npcEntity.getNpcData().getCharacterType().getCharacter().getCharacterMap();
     }
 
     protected void init() {
@@ -42,7 +42,7 @@ public class InfoNpcScreen extends Screen {
         drawString(pMatrixStack, this.font, npcFullName, npcFullNameXPos, this.actualScrollPos + lineHeight + actualYPos, 0xFFFFFF);
         actualYPos += lineHeight + 10;
 
-        String characterTypeName = "Character : " + npcEntity.getCharacterType().getId();
+        String characterTypeName = "Character : " + npcEntity.getNpcData().getCharacterType().getId();
         int characterNameWidth = this.font.width(characterTypeName);
         int characterNameXPos = this.width / 2 - characterNameWidth / 2;
         drawString(pMatrixStack, this.font, characterTypeName, characterNameXPos, this.actualScrollPos + lineHeight + actualYPos, 0xFFFFFF);

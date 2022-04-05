@@ -1,5 +1,7 @@
 package com.socialbehavior.socialbehaviormod.entity.custom.npc.character;
 
+import com.socialbehavior.socialbehaviormod.entity.custom.npc.relation.ERelation;
+
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;

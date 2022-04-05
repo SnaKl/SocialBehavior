@@ -44,14 +44,14 @@ public enum ECharacterType {
     }
 
     public static ECharacterType getRandomCharacterType() {
-        return VALUES.get(RANDOM.nextInt(SIZE));
+        return VALUES.get(RANDOM.nextInt(SIZE - 1) + 1);
     }
 
     public static ResultTypeNameWithMatchPercentage getNearestCharacterTypeName(Character character) {
         Field[] fields = Character.class.getDeclaredFields();
         float maximumMatchPercentage = Float.MIN_VALUE;
         int maximumGap = 255 * fields.length;
-        String idCharacterType = "";
+        ECharacterType eCharacterType = null;
 
         for (ECharacterType characterType : ECharacterType.values()) {
             int gap = 0;
@@ -69,15 +69,15 @@ public enum ECharacterType {
                 }
                 gap += result;
             }
-            if (gap == 0) return new ResultTypeNameWithMatchPercentage(characterType.id, 100);
+            if (gap == 0) return new ResultTypeNameWithMatchPercentage(characterType, 100);
 
             float gapPercentage = Math.abs((((float) gap / maximumGap) - 1) * 100);
             if (gapPercentage > maximumMatchPercentage) {
                 maximumMatchPercentage = gapPercentage;
-                idCharacterType = characterType.id;
+                eCharacterType = characterType;
             }
         }
-        return new ResultTypeNameWithMatchPercentage(idCharacterType, maximumMatchPercentage);
+        return new ResultTypeNameWithMatchPercentage(eCharacterType, maximumMatchPercentage);
     }
 
     public String getId() {
@@ -89,11 +89,11 @@ public enum ECharacterType {
     }
 
     public static class ResultTypeNameWithMatchPercentage {
-        public final String typeName;
+        public final ECharacterType type;
         public final float matchPercentage;
 
-        public ResultTypeNameWithMatchPercentage(String typeName, float matchPercentage) {
-            this.typeName = typeName;
+        public ResultTypeNameWithMatchPercentage(ECharacterType type, float matchPercentage) {
+            this.type = type;
             this.matchPercentage = matchPercentage;
         }
     }

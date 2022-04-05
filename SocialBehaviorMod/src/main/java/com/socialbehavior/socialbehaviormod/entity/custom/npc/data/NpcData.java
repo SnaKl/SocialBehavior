@@ -4,17 +4,13 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.socialbehavior.socialbehaviormod.SocialBehaviorMod;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.ECharacterType;
-import net.minecraft.util.math.MathHelper;
 
-import java.util.Random;
 import java.util.UUID;
 
 public class NpcData {
     public static final Codec<NpcData> CODEC = RecordCodecBuilder.create((value) -> {
-        return value.group(Codec.STRING.fieldOf("character").orElseGet(() -> {
-                    return ECharacterType.getRandomCharacterType().getId();
-                }).forGetter((npcData) -> {
-                    return npcData.characterNameType;
+        return value.group(Codec.INT.fieldOf("character_type").orElseGet(ECharacterType.BRAVE::ordinal).forGetter((npcData) -> {
+                    return npcData.characterType.ordinal();
                 }), Codec.STRING.fieldOf("uuid").orElseGet(() -> {
                     return UUID.randomUUID().toString();
                 }).forGetter((npcData) -> {
@@ -29,26 +25,32 @@ public class NpcData {
                     return npcData.lastName;
                 })
         ).apply(value, NpcData::new);
-
     });
-    private final String characterNameType;
+    private final ECharacterType characterType;
     private final String firstName;
     private final String lastName;
     private final String uuid;
 
-    public NpcData(String characterNameType, String uuid, String firstName, String lastName) {
-        this.characterNameType = characterNameType;
+    public NpcData(ECharacterType characterType, String uuid, String firstName, String lastName) {
+        this.characterType = characterType;
         this.uuid = uuid;
         this.firstName = firstName;
         this.lastName = lastName;
     }
 
-    public String getCharacterNameType() {
-        return this.characterNameType;
+    public NpcData(Integer characterType, String uuid, String firstName, String lastName) {
+        this.characterType = ECharacterType.values()[characterType];
+        this.uuid = uuid;
+        this.firstName = firstName;
+        this.lastName = lastName;
     }
 
-    public NpcData setCharacterNameType(String characterNameType) {
-        return new NpcData(characterNameType, this.uuid, this.firstName, this.lastName);
+    public ECharacterType getCharacterType() {
+        return this.characterType;
+    }
+
+    public NpcData setCharacterType(ECharacterType characterType) {
+        return new NpcData(characterType, this.uuid, this.firstName, this.lastName);
     }
 
     public String getUIID() {
@@ -56,7 +58,7 @@ public class NpcData {
     }
 
     public NpcData setUUID(String uuid) {
-        return new NpcData(this.characterNameType, uuid, this.firstName, this.lastName);
+        return new NpcData(this.characterType, uuid, this.firstName, this.lastName);
     }
 
     public String getFirstName() {
@@ -64,7 +66,7 @@ public class NpcData {
     }
 
     public NpcData setFirstName(String firstName) {
-        return new NpcData(this.characterNameType, this.uuid, firstName, this.lastName);
+        return new NpcData(this.characterType, this.uuid, firstName, this.lastName);
     }
 
     public String getLastName() {
@@ -72,7 +74,7 @@ public class NpcData {
     }
 
     public NpcData setLastName(String lastName) {
-        return new NpcData(this.characterNameType, this.uuid, this.firstName, lastName);
+        return new NpcData(this.characterType, this.uuid, this.firstName, lastName);
     }
 
     public String getFullName() {
@@ -81,12 +83,12 @@ public class NpcData {
 
     public NpcData setFullName(String fullName) {
         if (fullName.equals("")) {
-            return new NpcData(this.characterNameType, this.uuid, "", "");
+            return new NpcData(this.characterType, this.uuid, "", "");
         }
 
         String[] name = fullName.split(" ");
         if (name.length == 2) {
-            return new NpcData(this.characterNameType, this.uuid, name[0], name[1]);
+            return new NpcData(this.characterType, this.uuid, name[0], name[1]);
         }
         return null;
     }
