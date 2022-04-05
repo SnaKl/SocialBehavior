@@ -13,7 +13,7 @@ public class NpcToJson {
         JsonObject json = new JsonObject();
         NpcData npcData = npcEntity.getNpcData();
 
-        json.addProperty("id", npcEntity.getNpcData().getUIID());
+        json.addProperty("id", npcEntity.getNpcData().getUIID().toString());
 
         JsonObject jsonEntityPosition = new JsonObject();
         jsonEntityPosition.addProperty("x", npcEntity.position().x);

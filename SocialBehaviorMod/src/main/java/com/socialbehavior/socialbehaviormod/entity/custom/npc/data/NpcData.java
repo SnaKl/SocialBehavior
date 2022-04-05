@@ -4,21 +4,18 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.socialbehavior.socialbehaviormod.SocialBehaviorMod;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.ECharacterType;
-import net.minecraft.util.math.MathHelper;
+import com.socialbehavior.socialbehaviormod.entity.custom.npc.relation.Relation;
 
-import java.util.Random;
 import java.util.UUID;
 
 public class NpcData {
     public static final Codec<NpcData> CODEC = RecordCodecBuilder.create((value) -> {
-        return value.group(Codec.STRING.fieldOf("character").orElseGet(() -> {
-                    return ECharacterType.getRandomCharacterType().getId();
-                }).forGetter((npcData) -> {
-                    return npcData.characterNameType;
+        return value.group(Codec.INT.fieldOf("character_type").orElseGet(ECharacterType.BRAVE::ordinal).forGetter((npcData) -> {
+                    return npcData.characterType.ordinal();
                 }), Codec.STRING.fieldOf("uuid").orElseGet(() -> {
                     return UUID.randomUUID().toString();
                 }).forGetter((npcData) -> {
-                    return npcData.uuid;
+                    return npcData.uuid.toString();
                 }), Codec.STRING.fieldOf("firstName").orElseGet(() -> {
                     return SocialBehaviorMod.FAKER.name().firstName();
                 }).forGetter((npcData) -> {
@@ -27,36 +24,47 @@ public class NpcData {
                     return SocialBehaviorMod.FAKER.name().lastName();
                 }).forGetter((npcData) -> {
                     return npcData.lastName;
+                }), Relation.CODEC.fieldOf("relation").orElseGet(Relation::new).forGetter((npcData) -> {
+                    return npcData.relation;
                 })
         ).apply(value, NpcData::new);
-
     });
-    private final String characterNameType;
+    private final ECharacterType characterType;
     private final String firstName;
     private final String lastName;
-    private final String uuid;
+    private final UUID uuid;
+    private final Relation relation;
 
-    public NpcData(String characterNameType, String uuid, String firstName, String lastName) {
-        this.characterNameType = characterNameType;
+    public NpcData(ECharacterType characterType, UUID uuid, String firstName, String lastName, Relation relation) {
+        this.characterType = characterType;
         this.uuid = uuid;
         this.firstName = firstName;
         this.lastName = lastName;
+        this.relation = relation;
     }
 
-    public String getCharacterNameType() {
-        return this.characterNameType;
+    public NpcData(Integer characterType, String uuid, String firstName, String lastName, Relation relation) {
+        this.characterType = ECharacterType.values()[characterType];
+        this.uuid = UUID.fromString(uuid);
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.relation = relation;
     }
 
-    public NpcData setCharacterNameType(String characterNameType) {
-        return new NpcData(characterNameType, this.uuid, this.firstName, this.lastName);
+    public ECharacterType getCharacterType() {
+        return this.characterType;
     }
 
-    public String getUIID() {
+    public NpcData setCharacterType(ECharacterType characterType) {
+        return new NpcData(characterType, this.uuid, this.firstName, this.lastName, this.relation);
+    }
+
+    public UUID getUIID() {
         return this.uuid;
     }
 
-    public NpcData setUUID(String uuid) {
-        return new NpcData(this.characterNameType, uuid, this.firstName, this.lastName);
+    public NpcData setUUID(UUID uuid) {
+        return new NpcData(this.characterType, uuid, this.firstName, this.lastName, this.relation);
     }
 
     public String getFirstName() {
@@ -64,7 +72,7 @@ public class NpcData {
     }
 
     public NpcData setFirstName(String firstName) {
-        return new NpcData(this.characterNameType, this.uuid, firstName, this.lastName);
+        return new NpcData(this.characterType, this.uuid, firstName, this.lastName, this.relation);
     }
 
     public String getLastName() {
@@ -72,7 +80,7 @@ public class NpcData {
     }
 
     public NpcData setLastName(String lastName) {
-        return new NpcData(this.characterNameType, this.uuid, this.firstName, lastName);
+        return new NpcData(this.characterType, this.uuid, this.firstName, lastName, this.relation);
     }
 
     public String getFullName() {
@@ -81,13 +89,21 @@ public class NpcData {
 
     public NpcData setFullName(String fullName) {
         if (fullName.equals("")) {
-            return new NpcData(this.characterNameType, this.uuid, "", "");
+            return new NpcData(this.characterType, this.uuid, "", "", this.relation);
         }
 
         String[] name = fullName.split(" ");
         if (name.length == 2) {
-            return new NpcData(this.characterNameType, this.uuid, name[0], name[1]);
+            return new NpcData(this.characterType, this.uuid, name[0], name[1], this.relation);
         }
         return null;
+    }
+
+    public Relation getRelation() {
+        return this.relation;
+    }
+
+    public NpcData setRelation(Relation relation) {
+        return new NpcData(this.characterType, this.uuid, this.firstName, this.lastName, relation);
     }
 }

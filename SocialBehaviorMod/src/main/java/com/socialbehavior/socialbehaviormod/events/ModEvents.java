@@ -41,14 +41,9 @@ public class ModEvents {
 
         long worldTime = event.world.getGameTime();
         if (worldTime % 24000 != 0) return;
-        System.out.println("1 jours");
-        System.out.println("time : " + worldTime / 24000);
-        System.out.println("dimension : " + event.world.dimension().toString());
         if (NpcEntity.NPC_MAP == null) return;
-        System.out.println("NPC_MAP != null");
         List<NpcEntity> listEntities = new ArrayList<NpcEntity>(NpcEntity.NPC_MAP.values());
         if (listEntities.size() > 0) {
-            System.out.println("listEntities.size() > 0");
             WriteToFile.WriteJsonNpcEntities(listEntities, worldTime / 24000 + "_npc");
         }
     }
@@ -57,7 +52,7 @@ public class ModEvents {
     public static void onNpcDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof NpcEntity && NpcEntity.NPC_MAP != null) {
             NpcEntity npcEntity = (NpcEntity) event.getEntity();
-            NpcEntity.NPC_MAP.remove(npcEntity.getId(), npcEntity);
+            NpcEntity.NPC_MAP.remove(npcEntity.getStringUUID(), npcEntity);
         }
     }
 

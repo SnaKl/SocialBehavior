@@ -8,6 +8,7 @@ import com.socialbehavior.socialbehaviormod.entity.ModEntityTypes;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.Character;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.ECharacterType;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.data.NpcData;
+import com.socialbehavior.socialbehaviormod.entity.custom.npc.relation.Relation;
 import com.socialbehavior.socialbehaviormod.utils.DataSerializers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
@@ -16,7 +17,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.goal.SwimGoal;
-import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTDynamicOps;
@@ -32,13 +32,11 @@ import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nullable;
 import java.util.Map;
-import java.util.UUID;
 
 public class NpcEntity extends AbstractNPC {
-    private static final DataParameter<NpcData> DATA_NPC_DATA = EntityDataManager.defineId(VillagerEntity.class, DataSerializers.NPC_DATA);
+    private static final DataParameter<NpcData> DATA_NPC_DATA = EntityDataManager.defineId(NpcEntity.class, DataSerializers.NPC_DATA);
     @Nullable
     public static Map<String, NpcEntity> NPC_MAP = null;
-    private ECharacterType characterType;
     private Boolean isInteract;
 
     public NpcEntity(EntityType<? extends AgeableEntity> entityType, World world) {
@@ -50,15 +48,12 @@ public class NpcEntity extends AbstractNPC {
                 NPC_MAP = Maps.newHashMap();
             }
             NPC_MAP.putIfAbsent(this.getStringUUID(), this);
-
-            System.out.println("NPC_MAP size: " + NPC_MAP.size());
-            System.out.println("UUID: " + this.getStringUUID());
         }
     }
 
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(DATA_NPC_DATA, new NpcData("character", "uuid", "firstname", "lastname"));
+        this.entityData.define(DATA_NPC_DATA, new NpcData(ECharacterType.BRAVE, this.getUUID(), "firstname", "lastname", new Relation()));
     }
 
     public NpcData getNpcData() {
@@ -101,16 +96,17 @@ public class NpcEntity extends AbstractNPC {
     @Nullable
     public ILivingEntityData finalizeSpawn(IServerWorld serverWorld, DifficultyInstance difficultyInstance, SpawnReason spawnReason, @Nullable ILivingEntityData livingEntityData, @Nullable CompoundNBT compoundNBT) {
         ECharacterType.ResultTypeNameWithMatchPercentage result = ECharacterType.getNearestCharacterTypeName(new Character());
-        characterType = ECharacterType.byId(result.typeName);
-        if (characterType != null) {
-            this.setNpcData(this.getNpcData().setCharacterNameType(characterType.getId()));
+        if (result.type != null) {
+            this.setNpcData(this.getNpcData().setCharacterType(result.type));
+        } else {
+            this.setNpcData(this.getNpcData().setCharacterType(ECharacterType.getRandomCharacterType()));
         }
 
         String firstName = SocialBehaviorMod.FAKER.name().firstName();
         String lastName = SocialBehaviorMod.FAKER.name().lastName();
         this.setNpcData(this.getNpcData().setFullName(firstName + " " + lastName));
 
-        this.setNpcData(this.getNpcData().setUUID(this.getStringUUID()));
+        this.setNpcData(this.getNpcData().setUUID(this.getUUID()));
 
         return super.finalizeSpawn(serverWorld, difficultyInstance, spawnReason, livingEntityData, compoundNBT);
     }
@@ -135,13 +131,8 @@ public class NpcEntity extends AbstractNPC {
         return super.mobInteract(playerEntity, hand);
     }
 
-    public ECharacterType getCharacterType() {
-        return ECharacterType.byId(this.getNpcData().getCharacterNameType());
-    }
-
     public void setCharacterType(ECharacterType characterType) {
-        this.characterType = characterType;
-        this.setNpcData(this.getNpcData().setCharacterNameType(characterType.getId()));
+        this.setNpcData(this.getNpcData().setCharacterType(characterType));
     }
 
     public Boolean getInteract() {
