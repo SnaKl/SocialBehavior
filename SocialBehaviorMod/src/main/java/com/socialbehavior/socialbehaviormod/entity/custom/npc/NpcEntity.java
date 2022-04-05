@@ -1,15 +1,14 @@
 package com.socialbehavior.socialbehaviormod.entity.custom.npc;
 
 import com.google.common.collect.Maps;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.socialbehavior.socialbehaviormod.SocialBehaviorMod;
 import com.socialbehavior.socialbehaviormod.entity.ModEntityTypes;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.Character;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.ECharacterType;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.data.NpcData;
+import com.socialbehavior.socialbehaviormod.entity.custom.npc.relation.Relation;
 import com.socialbehavior.socialbehaviormod.utils.DataSerializers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
@@ -18,7 +17,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.ai.goal.SwimGoal;
-import net.minecraft.entity.merchant.villager.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTDynamicOps;
@@ -55,7 +53,7 @@ public class NpcEntity extends AbstractNPC {
 
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(DATA_NPC_DATA, new NpcData(ECharacterType.BRAVE, this.getUUID(), "firstname", "lastname"));
+        this.entityData.define(DATA_NPC_DATA, new NpcData(ECharacterType.BRAVE, this.getUUID(), "firstname", "lastname", new Relation()));
     }
 
     public NpcData getNpcData() {

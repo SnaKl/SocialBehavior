@@ -1,9 +1,9 @@
 package com.socialbehavior.socialbehaviormod.utils;
 
-import com.google.common.collect.Lists;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.ECharacterType;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.data.NpcData;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.relation.ERelation;
+import com.socialbehavior.socialbehaviormod.entity.custom.npc.relation.Relation;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.datasync.IDataSerializer;
 
@@ -17,6 +17,7 @@ public class DataSerializers extends net.minecraft.network.datasync.DataSerializ
             pBuffer.writeUUID(pValue.getUIID());
             pBuffer.writeUtf(pValue.getFirstName());
             pBuffer.writeUtf(pValue.getLastName());
+            pBuffer.writeUtf(pValue.getRelation().getAllRelationsString());
         }
 
         public NpcData read(PacketBuffer pBuffer) {
@@ -24,7 +25,8 @@ public class DataSerializers extends net.minecraft.network.datasync.DataSerializ
             UUID uuid = pBuffer.readUUID();
             String firstName = pBuffer.readUtf();
             String lastName = pBuffer.readUtf();
-            return new NpcData(characterType, uuid, firstName, lastName);
+            String allRelationsString = pBuffer.readUtf();
+            return new NpcData(characterType, uuid, firstName, lastName, new Relation(allRelationsString));
         }
 
         public NpcData copy(NpcData pValue) {
