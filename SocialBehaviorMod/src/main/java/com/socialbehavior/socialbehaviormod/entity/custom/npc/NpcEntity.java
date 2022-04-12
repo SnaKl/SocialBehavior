@@ -89,8 +89,22 @@ public class NpcEntity extends AbstractNPC {
 
     @Nullable
     @Override
-    public AgeableEntity getBreedOffspring(ServerWorld serverWorld, AgeableEntity ageableEntity) {
-        return ModEntityTypes.NPC.get().create(serverWorld);
+    public NpcEntity getBreedOffspring(ServerWorld serverWorld, AgeableEntity ageableEntity) {
+        return null;
+    }
+
+    public NpcEntity makeBaby(ServerWorld serverWorld, NpcEntity secondParent) {
+        NpcEntity firstParent = this;
+        NpcEntity babyNpc = ModEntityTypes.NPC.get().create(serverWorld);
+        if(babyNpc != null){
+            babyNpc.setBaby(true);
+            babyNpc.moveTo(this.getX(), this.getY(), this.getZ(), 0.0F, 0.0F);
+            serverWorld.getLevel().addFreshEntityWithPassengers(babyNpc);
+            babyNpc.finalizeSpawn(serverWorld, serverWorld.getCurrentDifficultyAt(this.blockPosition()), SpawnReason.BREEDING, null, null);
+            babyNpc.setNpcData(babyNpc.getNpcData().setLastName(this.getNpcData().getLastName()));
+        }
+
+        return null;
     }
 
     @Nullable
@@ -107,6 +121,11 @@ public class NpcEntity extends AbstractNPC {
         this.setNpcData(this.getNpcData().setFullName(firstName + " " + lastName));
 
         this.setNpcData(this.getNpcData().setUUID(this.getUUID()));
+
+        if(spawnReason != SpawnReason.BREEDING){
+            this.makeBaby(serverWorld.getLevel(), this);
+        }
+
 
         return super.finalizeSpawn(serverWorld, difficultyInstance, spawnReason, livingEntityData, compoundNBT);
     }
