@@ -1,6 +1,7 @@
 package com.socialbehavior.socialbehaviormod.events;
 
 import com.socialbehavior.socialbehaviormod.SocialBehaviorMod;
+import com.socialbehavior.socialbehaviormod.commands.MakeBabyNpcCommand;
 import com.socialbehavior.socialbehaviormod.commands.SpawnNpcCommand;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.NpcEntity;
 import com.socialbehavior.socialbehaviormod.utils.WriteToFile;
@@ -31,6 +32,7 @@ public class ModEvents {
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onCommandsRegister(RegisterCommandsEvent event) {
         new SpawnNpcCommand(event.getDispatcher());
+        new MakeBabyNpcCommand(event.getDispatcher());
         ConfigCommand.register(event.getDispatcher());
     }
 

@@ -46,9 +46,22 @@ public class NpcEntity extends AbstractNPC {
         if (!world.isClientSide) {
             if (NPC_MAP == null) {
                 NPC_MAP = Maps.newHashMap();
+
             }
             NPC_MAP.putIfAbsent(this.getStringUUID(), this);
         }
+    }
+
+    //find npc with is fullName in NPC_MAP with no case sensitive
+    @Nullable
+    public static NpcEntity FindByFullName(String fullName) {
+        if (NPC_MAP == null) return null;
+        for (NpcEntity npcEntity : NPC_MAP.values()) {
+            if (npcEntity.getNpcData().getFullName().equalsIgnoreCase(fullName)) {
+                return npcEntity;
+            }
+        }
+        return null;
     }
 
     protected void defineSynchedData() {
@@ -96,7 +109,7 @@ public class NpcEntity extends AbstractNPC {
     public NpcEntity makeBaby(ServerWorld serverWorld, NpcEntity secondParent) {
         NpcEntity firstParent = this;
         NpcEntity babyNpc = ModEntityTypes.NPC.get().create(serverWorld);
-        if(babyNpc != null){
+        if (babyNpc != null) {
             babyNpc.setBaby(true);
             babyNpc.moveTo(this.getX(), this.getY(), this.getZ(), 0.0F, 0.0F);
             serverWorld.getLevel().addFreshEntityWithPassengers(babyNpc);
@@ -122,7 +135,7 @@ public class NpcEntity extends AbstractNPC {
 
         this.setNpcData(this.getNpcData().setUUID(this.getUUID()));
 
-        if(spawnReason != SpawnReason.BREEDING){
+        if (spawnReason != SpawnReason.BREEDING) {
             this.makeBaby(serverWorld.getLevel(), this);
         }
 
@@ -164,4 +177,6 @@ public class NpcEntity extends AbstractNPC {
     @Override
     public void checkDespawn() {
     }
+
+
 }

@@ -2,8 +2,11 @@
   "itemGroup.SocialBehaviorModItemGroup" : "Social Behavior",
 
   "item.socialbehaviormod.silver_ingot" : "Silver Ingot",
-
   "block.socialbehaviormod.silver_ore" : "Silver Ore",
 
-  "entity.socialbehaviormod.hog" : "Hog"
+  "entity.socialbehaviormod.hog" : "Hog",
+
+  "commands.socialbehaviormod.npc.not_found" : "No NPC found with the name %s",
+  "commands.socialbehaviormod.npc.no_NPC" : "No NPC",
+  "commands.socialbehaviormod.npc.make_baby.failed" : "Failed to make baby"
 }
