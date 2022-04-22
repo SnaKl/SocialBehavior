@@ -1,10 +1,14 @@
 package com.socialbehavior.socialbehaviormod.entity.custom.npc;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.socialbehavior.socialbehaviormod.SocialBehaviorMod;
 import com.socialbehavior.socialbehaviormod.entity.ModEntityTypes;
+import com.socialbehavior.socialbehaviormod.entity.custom.HogEntity;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.Character;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.ECharacterType;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.data.NpcData;
@@ -16,14 +20,30 @@ import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.SpawnReason;
+import net.minecraft.entity.ai.attributes.Attributes;
+import net.minecraft.entity.ai.brain.Brain;
+import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
+import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
+import net.minecraft.entity.ai.brain.schedule.Activity;
+import net.minecraft.entity.ai.brain.schedule.Schedule;
+import net.minecraft.entity.ai.brain.sensor.Sensor;
+import net.minecraft.entity.ai.brain.sensor.SensorType;
+import net.minecraft.entity.ai.brain.task.*;
+import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.SwimGoal;
+import net.minecraft.entity.item.ItemEntity;
+import net.minecraft.entity.merchant.villager.VillagerEntity;
+import net.minecraft.entity.merchant.villager.VillagerProfession;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
+import net.minecraft.util.SoundEvents;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
@@ -31,9 +51,13 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nullable;
+import java.util.EnumSet;
 import java.util.Map;
+import java.util.Objects;
 
 public class NpcEntity extends AbstractNPC {
+    private static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of();
+    private static final ImmutableList<SensorType<? extends Sensor<? super NpcEntity>>> SENSOR_TYPES = ImmutableList.of(SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.NEAREST_BED, SensorType.HURT_BY);
     private static final DataParameter<NpcData> DATA_NPC_DATA = EntityDataManager.defineId(NpcEntity.class, DataSerializers.NPC_DATA);
     @Nullable
     public static Map<String, NpcEntity> NPC_MAP = null;
@@ -106,20 +130,6 @@ public class NpcEntity extends AbstractNPC {
         return null;
     }
 
-    public NpcEntity makeBaby(ServerWorld serverWorld, NpcEntity secondParent) {
-        NpcEntity firstParent = this;
-        NpcEntity babyNpc = ModEntityTypes.NPC.get().create(serverWorld);
-        if (babyNpc != null) {
-            babyNpc.setBaby(true);
-            babyNpc.moveTo(this.getX(), this.getY(), this.getZ(), 0.0F, 0.0F);
-            serverWorld.getLevel().addFreshEntityWithPassengers(babyNpc);
-            babyNpc.finalizeSpawn(serverWorld, serverWorld.getCurrentDifficultyAt(this.blockPosition()), SpawnReason.BREEDING, null, null);
-            babyNpc.setNpcData(babyNpc.getNpcData().setLastName(this.getNpcData().getLastName()));
-        }
-
-        return null;
-    }
-
     @Nullable
     public ILivingEntityData finalizeSpawn(IServerWorld serverWorld, DifficultyInstance difficultyInstance, SpawnReason spawnReason, @Nullable ILivingEntityData livingEntityData, @Nullable CompoundNBT compoundNBT) {
         ECharacterType.ResultTypeNameWithMatchPercentage result = ECharacterType.getNearestCharacterTypeName(new Character());
@@ -134,11 +144,11 @@ public class NpcEntity extends AbstractNPC {
         this.setNpcData(this.getNpcData().setFullName(firstName + " " + lastName));
 
         this.setNpcData(this.getNpcData().setUUID(this.getUUID()));
-
+/*
         if (spawnReason != SpawnReason.BREEDING) {
             this.makeBaby(serverWorld.getLevel(), this);
         }
-
+*/
 
         return super.finalizeSpawn(serverWorld, difficultyInstance, spawnReason, livingEntityData, compoundNBT);
     }
@@ -176,6 +186,46 @@ public class NpcEntity extends AbstractNPC {
      */
     @Override
     public void checkDespawn() {
+    }
+
+    public Brain<NpcEntity> getBrain() {
+        return (Brain<NpcEntity>) super.getBrain();
+    }
+
+    protected Brain<?> makeBrain(Dynamic<?> pDynamic) {
+        System.out.println("makeBrain");
+        Brain<NpcEntity> brain = this.brainProvider().makeBrain(pDynamic);
+        this.registerBrainGoals(brain);
+        return brain;
+    }
+
+    protected Brain.BrainCodec<NpcEntity> brainProvider() {
+        System.out.println("brainProvider");
+        return Brain.provider(MEMORY_TYPES, SENSOR_TYPES);
+    }
+
+    public void refreshBrain(ServerWorld pServerLevel) {
+        System.out.println("refreshBrain");
+        Brain<NpcEntity> brain = this.getBrain();
+        brain.stopAll(pServerLevel, this);
+        this.brain = brain.copyWithoutBehaviors();
+        this.registerBrainGoals(this.getBrain());
+    }
+
+    private void registerBrainGoals(Brain<NpcEntity> pVillagerBrain) {
+        System.out.println("registerBrainGoals");
+        pVillagerBrain.addActivity(Activity.CORE, 1 , ImmutableList.of(new WalkRandomlyTask(10F)));
+        pVillagerBrain.setCoreActivities(ImmutableSet.of(Activity.CORE));
+        pVillagerBrain.setDefaultActivity(Activity.CORE);
+        pVillagerBrain.setActiveActivityIfPossible(Activity.CORE);
+    }
+
+    @Override
+    protected void customServerAiStep() {
+        this.level.getProfiler().push("npcBrain");
+        this.getBrain().tick((ServerWorld)this.level, this);
+        this.level.getProfiler().pop();
+        super.customServerAiStep();
     }
 
 
