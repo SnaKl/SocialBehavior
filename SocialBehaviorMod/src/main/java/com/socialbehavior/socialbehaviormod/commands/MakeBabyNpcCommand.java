@@ -8,6 +8,7 @@ import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.MakeBabyGoal;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.NpcEntity;
+import com.socialbehavior.socialbehaviormod.entity.custom.npc.data.NpcData;
 import net.minecraft.command.CommandSource;
 import net.minecraft.command.Commands;
 import net.minecraft.command.ISuggestionProvider;
@@ -33,11 +34,11 @@ public class MakeBabyNpcCommand {
                         .then(Commands.argument("first_parent_firstName", StringArgumentType.string())
                                 .suggests((context, builder) -> NpcFirstNameSuggestion(context, builder, null))
                                 .then(Commands.argument("first_parent_lastName", StringArgumentType.string())
-                                        .suggests((context, builder) -> NpcLastNameSuggestion(context, builder, StringArgumentType.getString(context, "first_parent_firstName")))
+                                        .suggests((context, builder) -> NpcLastNameSuggestion(context, builder, StringArgumentType.getString(context, "first_parent_firstName"), null))
                                         .then(Commands.argument("second_parent_firstName", StringArgumentType.string())
                                                 .suggests((context, builder) -> NpcFirstNameSuggestion(context, builder, StringArgumentType.getString(context, "first_parent_firstName")))
                                                 .then(Commands.argument("second_parent_lastName", StringArgumentType.string())
-                                                        .suggests((context, builder) -> NpcLastNameSuggestion(context, builder, StringArgumentType.getString(context, "second_parent_firstName")))
+                                                        .suggests((context, builder) -> NpcLastNameSuggestion(context, builder, StringArgumentType.getString(context, "second_parent_firstName"), StringArgumentType.getString(context, "first_parent_lastName")))
                                                         .executes((commandContext) -> {
                                                             String firstParentFirstName = StringArgumentType.getString(commandContext, "first_parent_firstName");
                                                             String firstParentLastName = StringArgumentType.getString(commandContext, "first_parent_lastName");
@@ -100,8 +101,8 @@ public class MakeBabyNpcCommand {
         } else {
             for (NpcEntity npc : NpcEntity.NPC_MAP.values()) {
                 String fullName = npc.getNpcData().getFirstName();
-                if (!fullName.equals(firstNameAlreadyTake))
-                    arrayNpcFirstNames.add(npc.getNpcData().getFirstName());
+                if (!fullName.equals(firstNameAlreadyTake) && !npc.isBaby())
+                    arrayNpcFirstNames.add(fullName);
             }
         }
 
@@ -116,14 +117,16 @@ public class MakeBabyNpcCommand {
      * @param firstName
      * @return
      */
-    private CompletableFuture<Suggestions> NpcLastNameSuggestion(CommandContext<CommandSource> sourceCommandContext, SuggestionsBuilder suggestionsBuilder, String firstName) {
+    private CompletableFuture<Suggestions> NpcLastNameSuggestion(CommandContext<CommandSource> sourceCommandContext, SuggestionsBuilder suggestionsBuilder, String firstName, @Nullable String lastNameAlreadyTake) {
         List<String> arrayNpcLastNames = new ArrayList<>();
         if (NpcEntity.NPC_MAP == null || NpcEntity.NPC_MAP.isEmpty() || firstName.equals("NONE")) {
             arrayNpcLastNames.add("NONE");
         } else {
             for (NpcEntity npc : NpcEntity.NPC_MAP.values()) {
-                if (npc.getNpcData().getFirstName().equalsIgnoreCase(firstName))
-                    arrayNpcLastNames.add(npc.getNpcData().getLastName());
+                NpcData npcData = npc.getNpcData();
+                String lastName = npcData.getLastName();
+                if (npc.getNpcData().getFirstName().equalsIgnoreCase(firstName) && !lastName.equals(lastNameAlreadyTake) && !npc.isBaby())
+                    arrayNpcLastNames.add(lastName);
             }
         }
         return ISuggestionProvider.suggest(arrayNpcLastNames, suggestionsBuilder);
