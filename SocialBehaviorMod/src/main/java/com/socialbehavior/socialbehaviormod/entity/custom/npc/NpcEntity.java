@@ -7,8 +7,6 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.socialbehavior.socialbehaviormod.SocialBehaviorMod;
-import com.socialbehavior.socialbehaviormod.entity.ModEntityTypes;
-import com.socialbehavior.socialbehaviormod.entity.custom.HogEntity;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.Character;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.ECharacterType;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.data.NpcData;
@@ -20,30 +18,22 @@ import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ILivingEntityData;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.ai.brain.Brain;
-import net.minecraft.entity.ai.brain.memory.MemoryModuleStatus;
 import net.minecraft.entity.ai.brain.memory.MemoryModuleType;
 import net.minecraft.entity.ai.brain.schedule.Activity;
-import net.minecraft.entity.ai.brain.schedule.Schedule;
 import net.minecraft.entity.ai.brain.sensor.Sensor;
 import net.minecraft.entity.ai.brain.sensor.SensorType;
 import net.minecraft.entity.ai.brain.task.*;
-import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.ai.goal.SwimGoal;
-import net.minecraft.entity.item.ItemEntity;
-import net.minecraft.entity.merchant.villager.VillagerEntity;
-import net.minecraft.entity.merchant.villager.VillagerProfession;
+import net.minecraft.entity.monster.ZoglinEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.NBTDynamicOps;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.ActionResultType;
 import net.minecraft.util.Hand;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.vector.Vector3d;
+import net.minecraft.util.RangedInteger;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.IServerWorld;
 import net.minecraft.world.World;
@@ -51,17 +41,17 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nullable;
-import java.util.EnumSet;
 import java.util.Map;
-import java.util.Objects;
 
 public class NpcEntity extends AbstractNPC {
-    private static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of();
+    private static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(MemoryModuleType.LIVING_ENTITIES, MemoryModuleType.VISIBLE_LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER, MemoryModuleType.LOOK_TARGET, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.PATH, MemoryModuleType.ATTACK_TARGET, MemoryModuleType.ATTACK_COOLING_DOWN);
     private static final ImmutableList<SensorType<? extends Sensor<? super NpcEntity>>> SENSOR_TYPES = ImmutableList.of(SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.NEAREST_BED, SensorType.HURT_BY);
     private static final DataParameter<NpcData> DATA_NPC_DATA = EntityDataManager.defineId(NpcEntity.class, DataSerializers.NPC_DATA);
     @Nullable
     public static Map<String, NpcEntity> NPC_MAP = null;
-    private Boolean isInteract;
+    public boolean isCommandDone = false;
+    public boolean isCommandRunning = false;
+    private boolean isInteract;
 
     public NpcEntity(EntityType<? extends AgeableEntity> entityType, World world) {
         super(entityType, world);
@@ -214,16 +204,19 @@ public class NpcEntity extends AbstractNPC {
 
     private void registerBrainGoals(Brain<NpcEntity> pVillagerBrain) {
         System.out.println("registerBrainGoals");
-        pVillagerBrain.addActivity(Activity.CORE, 1 , ImmutableList.of(new WalkRandomlyTask(10F)));
+        pVillagerBrain.addActivity(Activity.CORE, 0, ImmutableList.of(new LookTask(45, 90), new WalkToTargetTask()));
+        pVillagerBrain.addActivity(Activity.IDLE, 10, ImmutableList.<net.minecraft.entity.ai.brain.task.Task<? super ZoglinEntity>>of(new RunSometimesTask(new LookAtEntityTask(8.0F), RangedInteger.of(30, 60)), new FirstShuffledTask(ImmutableList.of(Pair.of(new WalkRandomlyTask(0.4F), 2), Pair.of(new WalkTowardsLookTargetTask(0.4F, 3), 2), Pair.of(new DummyTask(30, 60), 1)))));
+
         pVillagerBrain.setCoreActivities(ImmutableSet.of(Activity.CORE));
-        pVillagerBrain.setDefaultActivity(Activity.CORE);
-        pVillagerBrain.setActiveActivityIfPossible(Activity.CORE);
+        pVillagerBrain.setDefaultActivity(Activity.IDLE);
+        //pVillagerBrain.useDefaultActivity();
+        pVillagerBrain.setActiveActivityIfPossible(Activity.IDLE);
     }
 
     @Override
     protected void customServerAiStep() {
         this.level.getProfiler().push("npcBrain");
-        this.getBrain().tick((ServerWorld)this.level, this);
+        this.getBrain().tick((ServerWorld) this.level, this);
         this.level.getProfiler().pop();
         super.customServerAiStep();
     }

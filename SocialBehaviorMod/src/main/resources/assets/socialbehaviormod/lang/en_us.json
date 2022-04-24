@@ -6,7 +6,10 @@
 
   "entity.socialbehaviormod.hog" : "Hog",
 
+  "commands.socialbehaviormod.npc.command_running" : "%s already running a command",
   "commands.socialbehaviormod.npc.not_found" : "No NPC found with the name %s",
   "commands.socialbehaviormod.npc.no_NPC" : "No NPC",
-  "commands.socialbehaviormod.npc.make_baby.failed" : "Failed to make baby"
+  "commands.socialbehaviormod.npc.baby_parents" : "Baby can't make babies",
+  "commands.socialbehaviormod.npc.make_baby.failed" : "Failed to make baby",
+  "commands.socialbehaviormod.npc.make_baby.cant_make_baby" : "%s and %s can't make a baby"
 }
