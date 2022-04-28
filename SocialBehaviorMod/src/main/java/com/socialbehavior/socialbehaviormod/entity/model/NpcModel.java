@@ -1,10 +1,14 @@
 package com.socialbehavior.socialbehaviormod.entity.model;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Iterables;
+import com.socialbehavior.socialbehaviormod.entity.custom.npc.NpcEntity;
+import net.minecraft.client.renderer.entity.model.AgeableModel;
 import net.minecraft.client.renderer.entity.model.IHasHead;
 import net.minecraft.client.renderer.entity.model.IHeadToggle;
 import net.minecraft.client.renderer.entity.model.SegmentedModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
+import net.minecraft.entity.AgeableEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.merchant.villager.AbstractVillagerEntity;
 import net.minecraft.util.math.MathHelper;
@@ -12,7 +16,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class NpcModel<T extends Entity> extends SegmentedModel<T> implements IHasHead, IHeadToggle {
+public class NpcModel<T extends NpcEntity> extends AgeableModel<T> {
     protected final ModelRenderer hatRim;
     protected final ModelRenderer body;
     protected final ModelRenderer jacket;
@@ -71,19 +75,9 @@ public class NpcModel<T extends Entity> extends SegmentedModel<T> implements IHa
     }
 
     public void setupAnim(T p_225597_1_, float p_225597_2_, float p_225597_3_, float p_225597_4_, float p_225597_5_, float p_225597_6_) {
-        boolean flag = false;
-        if (p_225597_1_ instanceof AbstractVillagerEntity) {
-            flag = ((AbstractVillagerEntity) p_225597_1_).getUnhappyCounter() > 0;
-        }
-
         this.head.yRot = p_225597_5_ * ((float) Math.PI / 180F);
         this.head.xRot = p_225597_6_ * ((float) Math.PI / 180F);
-        if (flag) {
-            this.head.zRot = 0.3F * MathHelper.sin(0.45F * p_225597_4_);
-            this.head.xRot = 0.4F;
-        } else {
-            this.head.zRot = 0.0F;
-        }
+        this.head.zRot = 0.0F;
 
         this.arms.y = 3.0F;
         this.arms.z = -1.0F;
@@ -98,9 +92,13 @@ public class NpcModel<T extends Entity> extends SegmentedModel<T> implements IHa
         return this.head;
     }
 
-    public void hatVisible(boolean p_217146_1_) {
-        this.head.visible = p_217146_1_;
-        this.hat.visible = p_217146_1_;
-        this.hatRim.visible = p_217146_1_;
+    @Override
+    protected Iterable<ModelRenderer> headParts() {
+        return ImmutableList.of(this.head);
+    }
+
+    @Override
+    protected Iterable<ModelRenderer> bodyParts() {
+        return ImmutableList.of(this.body, this.arms, this.leg0, this.leg1);
     }
 }

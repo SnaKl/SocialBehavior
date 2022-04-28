@@ -1,14 +1,26 @@
 package com.socialbehavior.socialbehaviormod.entity.custom.npc;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.socialbehavior.socialbehaviormod.entity.custom.npc.relation.ERelation;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.text.IFormattableTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
+
+/**
+ * Display the information of the npc on right click
+ *
+ * @author SnaKi
+ * @version 1.0
+ * date : 28/04/2022
+ */
 @OnlyIn(Dist.CLIENT)
 public class InfoNpcScreen extends Screen {
     private final NpcEntity npcEntity;
@@ -25,7 +37,6 @@ public class InfoNpcScreen extends Screen {
     protected void init() {
 
     }
-
 
     public boolean shouldCloseOnEsc() {
         return true;
@@ -48,18 +59,66 @@ public class InfoNpcScreen extends Screen {
         drawString(pMatrixStack, this.font, characterTypeName, characterNameXPos, this.actualScrollPos + lineHeight + actualYPos, 0xFFFFFF);
         actualYPos += lineHeight + 10;
 
-        drawCharacterStats(pMatrixStack, actualYPos, lineHeight);
+        actualYPos = drawCharacterStats(pMatrixStack, actualYPos, lineHeight);
+        actualYPos += lineHeight + 10;
+
+        actualYPos = drawLinkedNpc(pMatrixStack, actualYPos, lineHeight);
+        actualYPos += lineHeight + 10;
+
     }
 
-    private void drawCharacterStats(MatrixStack pMatrixStack, int actualYPos, int lineHeight) {
+    /**
+     * Draws the character stats
+     *
+     * @param matrixStack the matrix stack
+     * @param actualYPos  the actual Y position
+     * @param lineHeight  the line height
+     * @return actualYPos
+     */
+    private int drawCharacterStats(MatrixStack matrixStack, int actualYPos, int lineHeight) {
         for (Map.Entry<String, Integer> entry : this.charAttributesMap.entrySet()) {
             int value = (int) (((float) entry.getValue() / 255.0) * 100.0);
             String text = entry.getKey() + " : " + value + "/100";
             int textWidth = this.font.width(text);
             int textXPos = this.width / 2 - textWidth / 2;
-            drawString(pMatrixStack, this.font, text, textXPos, this.actualScrollPos + lineHeight + actualYPos, 0xFFFFFF);
+            drawString(matrixStack, this.font, text, textXPos, this.actualScrollPos + lineHeight + actualYPos, 0xFFFFFF);
             actualYPos += lineHeight;
         }
+        return actualYPos;
+    }
+
+    /**
+     * Draw linked NPC
+     *
+     * @param matrixStack matrix stack
+     * @param actualYPos  actual Y position
+     * @param lineHeight  line height
+     * @return actual Y position
+     */
+    private int drawLinkedNpc(MatrixStack matrixStack, int actualYPos, int lineHeight) {
+        for (Map.Entry<ERelation, List<UUID>> entry : this.npcEntity.getNpcData().getRelation().getRelations().entrySet()) {
+            ERelation eRelation = entry.getKey();
+            List<UUID> uuidList = entry.getValue();
+            if (uuidList.isEmpty()) continue;
+
+            IFormattableTextComponent textRelationName = eRelation.getRelationName().append(" : ");
+            int textWidthRelationName = this.font.width(textRelationName);
+            int textRelationNameXPos = this.width / 2 - textWidthRelationName / 2;
+            drawString(matrixStack, this.font, textRelationName, textRelationNameXPos, this.actualScrollPos + lineHeight + actualYPos, 0xFFFFFF);
+            actualYPos += lineHeight;
+
+            for (UUID uuid : uuidList) {
+                NpcEntity npc = NpcEntity.FindByUUID(uuid);
+                if (npc == null) continue;
+
+                String npcFullName = npc.getNpcData().getFullName();
+                int textNpcFullName = this.font.width(npcFullName);
+                int textNpcFullNameXPos = this.width / 2 - textNpcFullName / 2;
+                drawString(matrixStack, this.font, npcFullName, textNpcFullNameXPos, this.actualScrollPos + lineHeight + actualYPos, 0xFFFFFF);
+                actualYPos += lineHeight;
+            }
+        }
+        return actualYPos;
     }
 
     @Override
@@ -72,9 +131,9 @@ public class InfoNpcScreen extends Screen {
             pDelta = -1.0D;
         }
         actualScrollPos += pDelta * scrollSpeed;
+        if (actualScrollPos < 0) actualScrollPos = 0;
         return super.mouseScrolled(pMouseX, pMouseY, pDelta);
     }
-
 
     public boolean mouseClicked(double pMouseX, double pMouseY, int pButton) {
         return super.mouseClicked(pMouseX, pMouseY, pButton);
@@ -83,5 +142,4 @@ public class InfoNpcScreen extends Screen {
     public boolean isPauseScreen() {
         return true;
     }
-
 }
