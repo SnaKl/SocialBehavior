@@ -20,5 +20,9 @@
   "screen_info.socialbehaviormod.npc.relation.lover" : "Lover",
   "screen_info.socialbehaviormod.npc.relation.enemy" : "Enemy",
   "screen_info.socialbehaviormod.npc.relation.neutral" : "Neutral",
-  "screen_info.socialbehaviormod.npc.relation.unknown" : "Unknown"
+  "screen_info.socialbehaviormod.npc.relation.unknown" : "Unknown",
+
+  "screen_info.socialbehaviormod.npc.gender.male" : "Male",
+  "screen_info.socialbehaviormod.npc.gender.female" : "Female",
+  "screen_info.socialbehaviormod.npc.gender.transgender" : "Transgender"
 }
