@@ -11,5 +11,14 @@
   "commands.socialbehaviormod.npc.no_NPC" : "No NPC",
   "commands.socialbehaviormod.npc.baby_parents" : "Baby can't make babies",
   "commands.socialbehaviormod.npc.make_baby.failed" : "Failed to make baby",
-  "commands.socialbehaviormod.npc.make_baby.cant_make_baby" : "%s and %s can't make a baby"
+  "commands.socialbehaviormod.npc.make_baby.cant_make_baby" : "%s and %s can't make a baby",
+
+  "screen_info.socialbehaviormod.npc.relation.family" : "Family",
+  "screen_info.socialbehaviormod.npc.relation.parent" : "Parent",
+  "screen_info.socialbehaviormod.npc.relation.child" : "Child",
+  "screen_info.socialbehaviormod.npc.relation.friendship" : "Friendship",
+  "screen_info.socialbehaviormod.npc.relation.lover" : "Lover",
+  "screen_info.socialbehaviormod.npc.relation.enemy" : "Enemy",
+  "screen_info.socialbehaviormod.npc.relation.neutral" : "Neutral",
+  "screen_info.socialbehaviormod.npc.relation.unknown" : "Unknown"
 }

@@ -32,13 +32,13 @@ public class MakeBabyNpcCommand {
         dispatcher.register(Commands.literal("npc")
                 .then(Commands.literal("make_baby")
                         .then(Commands.argument("first_parent_firstName", StringArgumentType.string())
-                                .suggests((context, builder) -> NpcFirstNameSuggestion(context, builder, null))
+                                .suggests((context, builder) -> npcFirstNameSuggestion(context, builder, null))
                                 .then(Commands.argument("first_parent_lastName", StringArgumentType.string())
-                                        .suggests((context, builder) -> NpcLastNameSuggestion(context, builder, StringArgumentType.getString(context, "first_parent_firstName"), null))
+                                        .suggests((context, builder) -> npcLastNameSuggestion(context, builder, StringArgumentType.getString(context, "first_parent_firstName"), null))
                                         .then(Commands.argument("second_parent_firstName", StringArgumentType.string())
-                                                .suggests((context, builder) -> NpcFirstNameSuggestion(context, builder, StringArgumentType.getString(context, "first_parent_firstName")))
+                                                .suggests((context, builder) -> npcFirstNameSuggestion(context, builder, StringArgumentType.getString(context, "first_parent_firstName")))
                                                 .then(Commands.argument("second_parent_lastName", StringArgumentType.string())
-                                                        .suggests((context, builder) -> NpcLastNameSuggestion(context, builder, StringArgumentType.getString(context, "second_parent_firstName"), StringArgumentType.getString(context, "first_parent_lastName")))
+                                                        .suggests((context, builder) -> npcLastNameSuggestion(context, builder, StringArgumentType.getString(context, "second_parent_firstName"), StringArgumentType.getString(context, "first_parent_lastName")))
                                                         .executes((commandContext) -> {
                                                             String firstParentFirstName = StringArgumentType.getString(commandContext, "first_parent_firstName");
                                                             String firstParentLastName = StringArgumentType.getString(commandContext, "first_parent_lastName");
@@ -89,19 +89,19 @@ public class MakeBabyNpcCommand {
     /**
      * Get all firstnames of all NPCs with possibility to filter one firstname
      *
-     * @param sourceCommandContext
-     * @param suggestionsBuilder
-     * @param firstNameAlreadyTake
-     * @return Suggestions
+     * @param sourceCommandContext The source command context
+     * @param suggestionsBuilder  The suggestions builder
+     * @param firstNameAlreadyTake The firstname already taken
+     * @return Suggestions of all firstnames
      */
-    private CompletableFuture<Suggestions> NpcFirstNameSuggestion(CommandContext<CommandSource> sourceCommandContext, SuggestionsBuilder suggestionsBuilder, @Nullable String firstNameAlreadyTake) {
+    private CompletableFuture<Suggestions> npcFirstNameSuggestion(CommandContext<CommandSource> sourceCommandContext, SuggestionsBuilder suggestionsBuilder, @Nullable String firstNameAlreadyTake) {
         List<String> arrayNpcFirstNames = new ArrayList<>();
         if (NpcEntity.NPC_MAP == null || NpcEntity.NPC_MAP.isEmpty()) {
             arrayNpcFirstNames.add("NONE");
         } else {
             for (NpcEntity npc : NpcEntity.NPC_MAP.values()) {
                 String fullName = npc.getNpcData().getFirstName();
-                if (!fullName.equals(firstNameAlreadyTake) && !npc.isBaby())
+                if (!fullName.equals(firstNameAlreadyTake) && !npc.isBaby() && npc.isAlive())
                     arrayNpcFirstNames.add(fullName);
             }
         }
@@ -112,12 +112,12 @@ public class MakeBabyNpcCommand {
     /**
      * Get all lastname from given firstname of all NPCs
      *
-     * @param sourceCommandContext
-     * @param suggestionsBuilder
-     * @param firstName
-     * @return
+     * @param sourceCommandContext The source command context
+     * @param suggestionsBuilder  The suggestions builder
+     * @param firstName The firstname
+     * @return Suggestions of all lastnames
      */
-    private CompletableFuture<Suggestions> NpcLastNameSuggestion(CommandContext<CommandSource> sourceCommandContext, SuggestionsBuilder suggestionsBuilder, String firstName, @Nullable String lastNameAlreadyTake) {
+    private CompletableFuture<Suggestions> npcLastNameSuggestion(CommandContext<CommandSource> sourceCommandContext, SuggestionsBuilder suggestionsBuilder, String firstName, @Nullable String lastNameAlreadyTake) {
         List<String> arrayNpcLastNames = new ArrayList<>();
         if (NpcEntity.NPC_MAP == null || NpcEntity.NPC_MAP.isEmpty() || firstName.equals("NONE")) {
             arrayNpcLastNames.add("NONE");
@@ -125,7 +125,7 @@ public class MakeBabyNpcCommand {
             for (NpcEntity npc : NpcEntity.NPC_MAP.values()) {
                 NpcData npcData = npc.getNpcData();
                 String lastName = npcData.getLastName();
-                if (npc.getNpcData().getFirstName().equalsIgnoreCase(firstName) && !lastName.equals(lastNameAlreadyTake) && !npc.isBaby())
+                if (npc.getNpcData().getFirstName().equalsIgnoreCase(firstName) && !lastName.equals(lastNameAlreadyTake) && !npc.isBaby() && npc.isAlive())
                     arrayNpcLastNames.add(lastName);
             }
         }

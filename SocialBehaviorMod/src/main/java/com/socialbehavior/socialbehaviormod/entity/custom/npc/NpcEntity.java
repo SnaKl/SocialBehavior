@@ -42,6 +42,7 @@ import net.minecraftforge.common.MinecraftForge;
 
 import javax.annotation.Nullable;
 import java.util.Map;
+import java.util.UUID;
 
 public class NpcEntity extends AbstractNPC {
     private static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(MemoryModuleType.LIVING_ENTITIES, MemoryModuleType.VISIBLE_LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER, MemoryModuleType.LOOK_TARGET, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.PATH, MemoryModuleType.ATTACK_TARGET, MemoryModuleType.ATTACK_COOLING_DOWN);
@@ -66,12 +67,34 @@ public class NpcEntity extends AbstractNPC {
         }
     }
 
-    //find npc with is fullName in NPC_MAP with no case sensitive
+    /**
+     * Find npc with is fullName in NPC_MAP with no case sensitive
+     *
+     * @param fullName full name of npc
+     * @return npc if found, null if not found
+     */
     @Nullable
     public static NpcEntity FindByFullName(String fullName) {
-        if (NPC_MAP == null) return null;
+        if (NPC_MAP == null || NPC_MAP.isEmpty()) return null;
         for (NpcEntity npcEntity : NPC_MAP.values()) {
             if (npcEntity.getNpcData().getFullName().equalsIgnoreCase(fullName)) {
+                return npcEntity;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Find npc with is UUID in NPC_MAP from saved uuid
+     *
+     * @param uuid uuid of npc
+     * @return npc if found, null if not found
+     */
+    @Nullable
+    public static NpcEntity FindByUUID(UUID uuid) {
+        if (NPC_MAP == null || NPC_MAP.isEmpty()) return null;
+        for (NpcEntity npcEntity : NPC_MAP.values()) {
+            if (npcEntity.getNpcData().getUIID().equals(uuid)) {
                 return npcEntity;
             }
         }
@@ -134,11 +157,6 @@ public class NpcEntity extends AbstractNPC {
         this.setNpcData(this.getNpcData().setFullName(firstName + " " + lastName));
 
         this.setNpcData(this.getNpcData().setUUID(this.getUUID()));
-/*
-        if (spawnReason != SpawnReason.BREEDING) {
-            this.makeBaby(serverWorld.getLevel(), this);
-        }
-*/
 
         return super.finalizeSpawn(serverWorld, difficultyInstance, spawnReason, livingEntityData, compoundNBT);
     }
