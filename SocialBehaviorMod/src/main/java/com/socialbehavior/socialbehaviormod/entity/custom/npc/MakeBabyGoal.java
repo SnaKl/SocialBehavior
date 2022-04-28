@@ -103,13 +103,11 @@ public class MakeBabyGoal extends Goal {
                     babyNpc.moveTo(this.firstParent.getX(), this.firstParent.getY(), this.firstParent.getZ(), 0.0F, 0.0F);
                     serverWorld.getLevel().addFreshEntityWithPassengers(babyNpc);
                     babyNpc.finalizeSpawn(serverWorld, serverWorld.getCurrentDifficultyAt(this.firstParent.blockPosition()), SpawnReason.BREEDING, null, null);
-                    NpcData babyData = babyNpc.getNpcData();
-                    babyData.setLastName(this.firstParent.getNpcData().getLastName());
+                    babyNpc.setNpcData(babyNpc.getNpcData().setLastName(this.firstParent.getNpcData().getLastName()));
 
                     //set baby's parents
-                    babyData.getRelation().addRelation(ERelation.PARENT, this.firstParent.getUUID());
-                    babyData.getRelation().addRelation(ERelation.PARENT, this.secondParent.getUUID());
-                    babyNpc.setNpcData(babyData);
+                    babyNpc.getNpcData().getRelation().addRelation(ERelation.PARENT, this.firstParent.getUUID());
+                    babyNpc.getNpcData().getRelation().addRelation(ERelation.PARENT, this.secondParent.getUUID());
 
                     //set parents' children
                     this.firstParent.getNpcData().getRelation().addRelation(ERelation.CHILD, babyNpc.getUUID());

@@ -44,6 +44,11 @@ import javax.annotation.Nullable;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * NPC Entity class
+ * @author SnaKi
+ * @version 1.0
+ */
 public class NpcEntity extends AbstractNPC {
     private static final ImmutableList<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(MemoryModuleType.LIVING_ENTITIES, MemoryModuleType.VISIBLE_LIVING_ENTITIES, MemoryModuleType.NEAREST_VISIBLE_PLAYER, MemoryModuleType.NEAREST_VISIBLE_TARGETABLE_PLAYER, MemoryModuleType.LOOK_TARGET, MemoryModuleType.WALK_TARGET, MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE, MemoryModuleType.PATH, MemoryModuleType.ATTACK_TARGET, MemoryModuleType.ATTACK_COOLING_DOWN);
     private static final ImmutableList<SensorType<? extends Sensor<? super NpcEntity>>> SENSOR_TYPES = ImmutableList.of(SensorType.NEAREST_LIVING_ENTITIES, SensorType.NEAREST_PLAYERS, SensorType.NEAREST_ITEMS, SensorType.NEAREST_BED, SensorType.HURT_BY);
@@ -61,7 +66,6 @@ public class NpcEntity extends AbstractNPC {
         if (!world.isClientSide) {
             if (NPC_MAP == null) {
                 NPC_MAP = Maps.newHashMap();
-
             }
             NPC_MAP.putIfAbsent(this.getStringUUID(), this);
         }
@@ -99,6 +103,31 @@ public class NpcEntity extends AbstractNPC {
             }
         }
         return null;
+    }
+
+    /**
+     * Remove all linked relation of npc
+     * @param npcEntity npc entity
+     */
+    public static void RemoveAllRelationLink(NpcEntity npcEntity) {
+        if (NPC_MAP == null || NPC_MAP.isEmpty()) return;
+        Relation npcRelation = npcEntity.getNpcData().getRelation();
+        npcRelation.getRelations().forEach((eRelation, uuidList) -> {
+            for (UUID uuid : uuidList) {
+                NpcEntity npcRelated = FindByUUID(uuid);
+                if(npcRelated == null) continue;
+
+                Relation npcRelatedRelation = npcRelated.getNpcData().getRelation();
+                npcRelatedRelation.removeAllRelationWithNpc(npcEntity.getNpcData().getUIID());
+            }
+        });
+    }
+
+    /**
+     * Call {@link NpcEntity#RemoveAllRelationLink(NpcEntity)}
+     */
+    public void removeAllRelationLink() {
+        RemoveAllRelationLink(this);
     }
 
     protected void defineSynchedData() {

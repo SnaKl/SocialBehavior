@@ -52,9 +52,10 @@ public class ModEvents {
 
     @SubscribeEvent(priority = EventPriority.LOW)
     public static void onNpcDeath(LivingDeathEvent event) {
-        if (event.getEntity() instanceof NpcEntity && NpcEntity.NPC_MAP != null) {
+        if (event.getEntity() instanceof NpcEntity && NpcEntity. NPC_MAP != null) {
             NpcEntity npcEntity = (NpcEntity) event.getEntity();
-            NpcEntity.NPC_MAP.remove(npcEntity.getStringUUID(), npcEntity);
+            npcEntity.removeAllRelationLink();
+            NpcEntity.NPC_MAP.remove(npcEntity.getNpcData().getUIID().toString(), npcEntity);
         }
     }
 

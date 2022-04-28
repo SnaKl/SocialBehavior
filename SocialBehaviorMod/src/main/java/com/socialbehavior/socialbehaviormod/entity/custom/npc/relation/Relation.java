@@ -81,6 +81,16 @@ public class Relation {
     }
 
     /**
+     * Remove all relation can have with specific npc.
+     * @param uuid UUID of npc.
+     */
+    public void removeAllRelationWithNpc(UUID uuid) {
+        for (ERelation relation : ERelation.values()) {
+            removeRelation(relation, uuid);
+        }
+    }
+
+    /**
      * Clear eRelation
      *
      * @param eRelation ERelation to clear.
