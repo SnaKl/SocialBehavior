@@ -10,6 +10,7 @@ import com.socialbehavior.socialbehaviormod.SocialBehaviorMod;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.Character;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.character.ECharacterType;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.data.NpcData;
+import com.socialbehavior.socialbehaviormod.entity.custom.npc.gender.EGender;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.relation.Relation;
 import com.socialbehavior.socialbehaviormod.utils.DataSerializers;
 import net.minecraft.client.Minecraft;
@@ -46,6 +47,7 @@ import java.util.UUID;
 
 /**
  * NPC Entity class
+ *
  * @author SnaKi
  * @version 1.0
  */
@@ -98,7 +100,7 @@ public class NpcEntity extends AbstractNPC {
     public static NpcEntity FindByUUID(UUID uuid) {
         if (NPC_MAP == null || NPC_MAP.isEmpty()) return null;
         for (NpcEntity npcEntity : NPC_MAP.values()) {
-            if (npcEntity.getNpcData().getUIID().equals(uuid)) {
+            if (npcEntity.getNpcData().getUUID().equals(uuid)) {
                 return npcEntity;
             }
         }
@@ -107,6 +109,7 @@ public class NpcEntity extends AbstractNPC {
 
     /**
      * Remove all linked relation of npc
+     *
      * @param npcEntity npc entity
      */
     public static void RemoveAllRelationLink(NpcEntity npcEntity) {
@@ -115,10 +118,10 @@ public class NpcEntity extends AbstractNPC {
         npcRelation.getRelations().forEach((eRelation, uuidList) -> {
             for (UUID uuid : uuidList) {
                 NpcEntity npcRelated = FindByUUID(uuid);
-                if(npcRelated == null) continue;
+                if (npcRelated == null) continue;
 
                 Relation npcRelatedRelation = npcRelated.getNpcData().getRelation();
-                npcRelatedRelation.removeAllRelationWithNpc(npcEntity.getNpcData().getUIID());
+                npcRelatedRelation.removeAllRelationWithNpc(npcEntity.getNpcData().getUUID());
             }
         });
     }
@@ -132,7 +135,7 @@ public class NpcEntity extends AbstractNPC {
 
     protected void defineSynchedData() {
         super.defineSynchedData();
-        this.entityData.define(DATA_NPC_DATA, new NpcData(ECharacterType.BRAVE, this.getUUID(), "firstname", "lastname", new Relation()));
+        this.entityData.define(DATA_NPC_DATA, new NpcData(this.getUUID(), "firstname", "lastname", ECharacterType.BRAVE, EGender.MALE, new Relation()));
     }
 
     public NpcData getNpcData() {
@@ -174,6 +177,12 @@ public class NpcEntity extends AbstractNPC {
 
     @Nullable
     public ILivingEntityData finalizeSpawn(IServerWorld serverWorld, DifficultyInstance difficultyInstance, SpawnReason spawnReason, @Nullable ILivingEntityData livingEntityData, @Nullable CompoundNBT compoundNBT) {
+        this.setNpcData(this.getNpcData().setUUID(this.getUUID()));
+
+        String firstName = SocialBehaviorMod.FAKER.name().firstName();
+        String lastName = SocialBehaviorMod.FAKER.name().lastName();
+        this.setNpcData(this.getNpcData().setFullName(firstName + " " + lastName));
+
         ECharacterType.ResultTypeNameWithMatchPercentage result = ECharacterType.getNearestCharacterTypeName(new Character());
         if (result.type != null) {
             this.setNpcData(this.getNpcData().setCharacterType(result.type));
@@ -181,11 +190,7 @@ public class NpcEntity extends AbstractNPC {
             this.setNpcData(this.getNpcData().setCharacterType(ECharacterType.getRandomCharacterType()));
         }
 
-        String firstName = SocialBehaviorMod.FAKER.name().firstName();
-        String lastName = SocialBehaviorMod.FAKER.name().lastName();
-        this.setNpcData(this.getNpcData().setFullName(firstName + " " + lastName));
-
-        this.setNpcData(this.getNpcData().setUUID(this.getUUID()));
+        this.setNpcData(this.getNpcData().setGender(EGender.getRandomGender()));
 
         return super.finalizeSpawn(serverWorld, difficultyInstance, spawnReason, livingEntityData, compoundNBT);
     }

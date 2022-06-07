@@ -5,27 +5,18 @@ import com.socialbehavior.socialbehaviormod.commands.MakeBabyNpcCommand;
 import com.socialbehavior.socialbehaviormod.commands.SpawnNpcCommand;
 import com.socialbehavior.socialbehaviormod.entity.custom.npc.NpcEntity;
 import com.socialbehavior.socialbehaviormod.utils.WriteToFile;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.World;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
-import net.minecraftforge.event.entity.living.LivingEvent;
-import net.minecraftforge.event.entity.living.LivingSpawnEvent;
-import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.server.FMLServerStoppingEvent;
 import net.minecraftforge.server.command.ConfigCommand;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Mod.EventBusSubscriber(modid = SocialBehaviorMod.MOD_ID)
 public class ModEvents {
@@ -55,7 +46,7 @@ public class ModEvents {
         if (event.getEntity() instanceof NpcEntity && NpcEntity. NPC_MAP != null) {
             NpcEntity npcEntity = (NpcEntity) event.getEntity();
             npcEntity.removeAllRelationLink();
-            NpcEntity.NPC_MAP.remove(npcEntity.getNpcData().getUIID().toString(), npcEntity);
+            NpcEntity.NPC_MAP.remove(npcEntity.getNpcData().getUUID().toString(), npcEntity);
         }
     }
 

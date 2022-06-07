@@ -47,10 +47,22 @@ public class InfoNpcScreen extends Screen {
         int actualYPos = 0;
         int lineHeight = this.font.lineHeight;
 
-        String npcFullName = npcEntity.getNpcData().getFullName();
+        String npcUUID = "UUID : " + npcEntity.getNpcData().getUUID().toString();
+        int npcUUIDWidth = this.font.width(npcUUID);
+        int npcUUIDXPos = this.width / 2 - npcUUIDWidth / 2;
+        drawString(pMatrixStack, this.font, npcUUID, npcUUIDXPos, this.actualScrollPos + lineHeight + actualYPos, 0xFFFFFF);
+        actualYPos += lineHeight + 10;
+
+        String npcFullName = "Fullname : " + npcEntity.getNpcData().getFullName();
         int npcFullNameWidth = this.font.width(npcFullName);
         int npcFullNameXPos = this.width / 2 - npcFullNameWidth / 2;
         drawString(pMatrixStack, this.font, npcFullName, npcFullNameXPos, this.actualScrollPos + lineHeight + actualYPos, 0xFFFFFF);
+        actualYPos += lineHeight + 10;
+
+        IFormattableTextComponent npcGender = new TranslationTextComponent("screen_info.socialbehaviormod.npc.gender").append(" : ").append(npcEntity.getNpcData().getGender().getGenderName());
+        int npcGenderWidth = this.font.width(npcGender);
+        int npcGenderXPos = this.width / 2 - npcGenderWidth / 2;
+        drawString(pMatrixStack, this.font, npcGender, npcGenderXPos, this.actualScrollPos + lineHeight + actualYPos, 0xFFFFFF);
         actualYPos += lineHeight + 10;
 
         String characterTypeName = "Character : " + npcEntity.getNpcData().getCharacterType().getId();
