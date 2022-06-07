@@ -15,7 +15,7 @@ public enum ECharacterType {
     BRAVE("brave", new Character(255, 127, 127, 100, 167, 187, 217, 250, 220)),
     FEARFUL("fearful", new Character(0, 255, 127, 220, 200, 147, 100, 20, 0)),
     WISE("wise", new Character(130, 110, 255, 100, 77, 207, 120, 100, 100)),
-    DYNAMIC("dynamic", new Character(207, -40, 127, 255, 207, 207, 140, 200, 140)),
+    DYNAMIC("dynamic", new Character(207, 40, 127, 255, 207, 207, 140, 200, 140)),
     THOUGHTFUL("thoughtful", new Character(210, 100, 207, 255, 130, 100, 190, 255, 20)),
     DECEITFUL("deceitful", new Character(10, 207, 155, 90, 140, 80, 127, 40, 130)),
     LEADER("leader", new Character(240, 100, 100, 100, 100, 70, 120, 77, 100)),
@@ -44,24 +44,26 @@ public enum ECharacterType {
     }
 
     public static ECharacterType getRandomCharacterType() {
-        return VALUES.get(RANDOM.nextInt(SIZE));
+        return VALUES.get(RANDOM.nextInt(SIZE - 1) + 1);
     }
 
     public static ResultTypeNameWithMatchPercentage getNearestCharacterTypeName(Character character) {
         Field[] fields = Character.class.getDeclaredFields();
         float maximumMatchPercentage = Float.MIN_VALUE;
         int maximumGap = 255 * fields.length;
-        String idCharacterType = "";
+        ECharacterType eCharacterType = null;
 
         for (ECharacterType characterType : ECharacterType.values()) {
             int gap = 0;
             for (Field field : fields) {
                 String name = field.getName();
+                if (name.equals("CODEC")) continue;
+
                 int value1 = 0;
                 int value2 = 0;
                 int result = 0;
                 try {
-                    value1 = field.getInt(characterType.character);
+                    value1 = field.getInt(characterType.getCharacter());
                     value2 = field.getInt(character);
                     result = Math.abs(value2 - value1);
                 } catch (IllegalAccessException e) {
@@ -69,15 +71,15 @@ public enum ECharacterType {
                 }
                 gap += result;
             }
-            if (gap == 0) return new ResultTypeNameWithMatchPercentage(characterType.id, 100);
+            if (gap == 0) return new ResultTypeNameWithMatchPercentage(characterType, 100);
 
             float gapPercentage = Math.abs((((float) gap / maximumGap) - 1) * 100);
             if (gapPercentage > maximumMatchPercentage) {
                 maximumMatchPercentage = gapPercentage;
-                idCharacterType = characterType.id;
+                eCharacterType = characterType;
             }
         }
-        return new ResultTypeNameWithMatchPercentage(idCharacterType, maximumMatchPercentage);
+        return new ResultTypeNameWithMatchPercentage(eCharacterType, maximumMatchPercentage);
     }
 
     public String getId() {
@@ -89,11 +91,11 @@ public enum ECharacterType {
     }
 
     public static class ResultTypeNameWithMatchPercentage {
-        public final String typeName;
+        public final ECharacterType type;
         public final float matchPercentage;
 
-        public ResultTypeNameWithMatchPercentage(String typeName, float matchPercentage) {
-            this.typeName = typeName;
+        public ResultTypeNameWithMatchPercentage(ECharacterType type, float matchPercentage) {
+            this.type = type;
             this.matchPercentage = matchPercentage;
         }
     }
