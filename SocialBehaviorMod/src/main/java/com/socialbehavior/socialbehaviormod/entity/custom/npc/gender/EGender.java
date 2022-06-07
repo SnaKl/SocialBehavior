@@ -1,5 +1,7 @@
 package com.socialbehavior.socialbehaviormod.entity.custom.npc.gender;
 
+import com.socialbehavior.socialbehaviormod.SocialBehaviorMod;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TranslationTextComponent;
 
 import java.util.Arrays;
@@ -8,16 +10,18 @@ import java.util.List;
 import java.util.Random;
 
 public enum EGender {
-    MALE("screen_info.socialbehaviormod.npc.gender.male"),
-    FEMALE("screen_info.socialbehaviormod.npc.gender.female"),
-    TRANSGENDER("screen_info.socialbehaviormod.npc.gender.transgender");
+    MALE("screen_info.socialbehaviormod.npc.gender.male", new ResourceLocation(SocialBehaviorMod.MOD_ID, "textures/entities/npcmale.png")),
+    FEMALE("screen_info.socialbehaviormod.npc.gender.female", new ResourceLocation(SocialBehaviorMod.MOD_ID, "textures/entities/npcfemale.png")),
+    TRANSGENDER("screen_info.socialbehaviormod.npc.gender.transgender", new ResourceLocation(SocialBehaviorMod.MOD_ID, "textures/entities/npctransgender.png"));
 
     private static final List<EGender> VALUES = Collections.unmodifiableList(Arrays.asList(values()));
     private static final int SIZE = VALUES.size();
     private final String translationKey;
+    private final ResourceLocation texture;
 
-    EGender(String translationKey) {
+    EGender(String translationKey, ResourceLocation texture) {
         this.translationKey = translationKey;
+        this.texture = texture;
     }
 
     /**
@@ -36,5 +40,14 @@ public enum EGender {
      */
     public TranslationTextComponent getGenderName() {
         return new TranslationTextComponent(this.translationKey);
+    }
+
+    /**
+     * Get gender texture
+     *
+     * @return texture location
+     */
+    public ResourceLocation getTexture() {
+        return this.texture;
     }
 }
