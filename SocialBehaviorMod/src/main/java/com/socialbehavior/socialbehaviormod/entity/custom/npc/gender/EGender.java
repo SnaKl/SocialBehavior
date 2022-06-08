@@ -30,7 +30,7 @@ public enum EGender {
      * @return gender
      */
     public static EGender getRandomGender() {
-        return VALUES.get(new Random().nextInt(SIZE - 1) + 1);
+        return VALUES.get(new Random().nextInt(SIZE));
     }
 
     /**
